@@ -630,9 +630,11 @@ html, body {
     font-size: 0.8rem;
   }
 
-  .clients-container {
-    width: 100%;
+  .clients-section {
+    display: none;
   }
+
+
 
   .logo-item svg {
     width: 50%;
