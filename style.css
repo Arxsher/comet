@@ -653,15 +653,19 @@ html, body {
   }
 }
 
-/* Large Screen Styles */
-@media (min-width: 1200px) {
+/* 16/9 */
+@media (min-aspect-ratio: 16/9) {
 
   .hero {
-    height: 65vh;
+    height: 65vh ;
   }
 
-.clients-section {
-  display: none;
-}
+  .navbar {
+    padding-bottom: 3rem;
+  }
+
+  .clients-section {
+    display: none;
+  }
 
 }
