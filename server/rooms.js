@@ -20,7 +20,7 @@ const ID_RE = /^[a-z0-9](?:[a-z0-9-]{1,46})[a-z0-9]$/;
 const COLOR_RE = /^#[0-9a-f]{6}$/i;
 
 const ADJECTIVES = ['quiet', 'amber', 'lunar', 'swift', 'velvet', 'cosmic', 'brave', 'misty', 'golden', 'electric', 'gentle', 'wild', 'neon', 'silver', 'sunny', 'hidden'];
-const NOUNS = ['otter', 'comet', 'harbor', 'falcon', 'meadow', 'lantern', 'orbit', 'maple', 'tiger', 'river', 'pixel', 'cloud', 'ember', 'canyon', 'koala', 'nova'];
+const NOUNS = ['otter', 'spark', 'harbor', 'falcon', 'meadow', 'lantern', 'orbit', 'maple', 'tiger', 'river', 'pixel', 'cloud', 'ember', 'canyon', 'koala', 'nova'];
 
 const SEED = [
   { id: 'lobby', name: 'The Lobby', topic: 'Say hi. Everyone passes through here.' },

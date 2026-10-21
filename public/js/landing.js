@@ -230,7 +230,7 @@ function initPreview() {
   const composer = $('.preview-composer');
   const enter = $('.preview-enter');
   const peopleList = $('[data-demo-people]');
-  for (const el of $$('[data-host]')) el.textContent = location.host || 'comet';
+  for (const el of $$('[data-host]')) el.textContent = location.host || 'midsentence';
 
   const PEOPLE = {
     maya: { name: 'Maya', color: '#f472b6' },
@@ -692,8 +692,8 @@ async function initFooter() {
   const mode = await getMode();
   status.classList.add(mode === 'server' ? 'is-server' : 'is-local');
   text.textContent = mode === 'server' ? 'Live server connected' : 'Local mode — rooms sync across your tabs';
-  if (mode === 'local' && !sessionStorage.getItem('comet:local-noted')) {
-    sessionStorage.setItem('comet:local-noted', '1');
-    setTimeout(() => toast('No Comet server found — running in local mode (rooms sync across tabs).', { icon: 'ℹ', duration: 5200 }), 2600);
+  if (mode === 'local' && !sessionStorage.getItem('midsentence:local-noted')) {
+    sessionStorage.setItem('midsentence:local-noted', '1');
+    setTimeout(() => toast('No Midsentence server found — running in local mode (rooms sync across tabs).', { icon: 'ℹ', duration: 5200 }), 2600);
   }
 }

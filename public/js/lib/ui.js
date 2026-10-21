@@ -202,7 +202,7 @@ function buildCreateDialog() {
       ]);
       submit.classList.remove('is-loading');
       submit.classList.add('is-done');
-      session.set('comet:autojoin', room.id);
+      session.set('midsentence:autojoin', room.id);
       setTimeout(() => (location.href = roomHref(room.id)), 420);
     } catch (err) {
       busy = false;

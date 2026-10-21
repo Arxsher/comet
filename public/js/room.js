@@ -67,8 +67,8 @@ async function boot() {
   state.room = room;
   renderRoomInfo();
 
-  if (session.get('comet:autojoin') === roomId) {
-    session.set('comet:autojoin', null);
+  if (session.get('midsentence:autojoin') === roomId) {
+    session.set('midsentence:autojoin', null);
     return enterRoom();
   }
   showLobby();
@@ -136,7 +136,7 @@ function swatches(container, onPick) {
 
 function showLobby() {
   setView('lobby');
-  document.title = `Join ${state.room.name} · Comet`;
+  document.title = `Join ${state.room.name} · Midsentence`;
   const form = $('[data-join-form]');
   const name = $('[data-name-input]');
   const dice = $('[data-dice]');
@@ -208,7 +208,7 @@ function renderLobbyHere(room) {
 
 function showMissing({ invalid = false, offline = false, full = false } = {}) {
   setView('missing');
-  document.title = 'Room not found · Comet';
+  document.title = 'Room not found · Midsentence';
   const title = $('[data-missing-title]');
   const text = $('[data-missing-text]');
   const revive = $('[data-revive]');
@@ -222,7 +222,7 @@ function showMissing({ invalid = false, offline = false, full = false } = {}) {
     return;
   }
   if (offline) {
-    title.replaceChildren('Can’t reach ', h('span.serif.accent', 'Comet.'));
+    title.replaceChildren('Can’t reach ', h('span.serif.accent', 'Midsentence.'));
     text.textContent = 'The server didn’t answer. Check your connection and try again.';
     label.textContent = 'Try again';
     revive.onclick = () => location.reload();
@@ -275,7 +275,7 @@ let roomReady = false;
 
 function enterRoom() {
   setView('room');
-  document.title = `${state.room.name} · Comet`;
+  document.title = `${state.room.name} · Midsentence`;
   renderRoomInfo();
   if (!roomReady) {
     roomReady = true;
@@ -288,8 +288,8 @@ function enterRoom() {
   }
   connect();
   if (!isTouch()) el.input.focus();
-  if (state.mode === 'local' && !session.get('comet:local-room-tip')) {
-    session.set('comet:local-room-tip', true);
+  if (state.mode === 'local' && !session.get('midsentence:local-room-tip')) {
+    session.set('midsentence:local-room-tip', true);
     setTimeout(() => toast('Local mode: open this room in another tab to see live typing.', { icon: 'ℹ', duration: 5200 }), 900);
   }
 }
@@ -313,7 +313,7 @@ function connect() {
       replaced: () => {
         // Another tab took over this seat (e.g. a duplicated tab) — take a new one.
         state.me.id = uid(12);
-        session.set('comet:tab', state.me.id);
+        session.set('midsentence:tab', state.me.id);
         connect();
       },
     },
@@ -592,7 +592,7 @@ function onLine(line, nonce) {
   }
   if (document.hidden && line.author.id !== state.me.id) {
     state.unread++;
-    document.title = `(${state.unread}) ${state.room.name} · Comet`;
+    document.title = `(${state.unread}) ${state.room.name} · Midsentence`;
   }
 }
 
@@ -842,7 +842,7 @@ function initSidebar() {
   const sidebar = $('[data-sidebar]');
   const mobile = matchMedia('(max-width: 860px)');
 
-  if (store.get('comet:sidebar-hidden')) document.body.classList.add('sidebar-hidden');
+  if (store.get('midsentence:sidebar-hidden')) document.body.classList.add('sidebar-hidden');
 
   const setSheet = (open) => {
     document.body.classList.toggle('sheet-open', open);
@@ -851,7 +851,7 @@ function initSidebar() {
   toggle.addEventListener('click', () => {
     if (mobile.matches) return setSheet(!document.body.classList.contains('sheet-open'));
     const hidden = document.body.classList.toggle('sidebar-hidden');
-    store.set('comet:sidebar-hidden', hidden);
+    store.set('midsentence:sidebar-hidden', hidden);
   });
   backdrop.addEventListener('click', () => setSheet(false));
   document.addEventListener('keydown', (e) => e.key === 'Escape' && document.body.classList.contains('sheet-open') && setSheet(false));
@@ -926,7 +926,7 @@ function initShare() {
     const url = shareUrl(roomId, state.mode);
     if (navigator.share && isTouch()) {
       try {
-        await navigator.share({ title: state.room.name, text: `Join me in “${state.room.name}” on Comet`, url });
+        await navigator.share({ title: state.room.name, text: `Join me in “${state.room.name}” on Midsentence`, url });
         return;
       } catch (err) {
         if (err.name === 'AbortError') return;
@@ -978,7 +978,7 @@ function initLifecycle() {
     state.conn?.away(document.hidden);
     if (!document.hidden && state.unread) {
       state.unread = 0;
-      document.title = `${state.room.name} · Comet`;
+      document.title = `${state.room.name} · Midsentence`;
     }
   });
   window.addEventListener('pagehide', () => state.conn?.close());

@@ -1,7 +1,7 @@
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import WebSocket from 'ws';
-import { createCometServer } from '../server/index.js';
+import { createAppServer } from '../server/index.js';
 import { RoomStore } from '../server/rooms.js';
 
 let base;
@@ -9,7 +9,7 @@ let wsBase;
 let app;
 
 before(async () => {
-  app = createCometServer({ store: new RoomStore(), log: () => {} });
+  app = createAppServer({ store: new RoomStore(), log: () => {} });
   await new Promise((r) => app.server.listen(0, r));
   const { port } = app.server.address();
   base = `http://127.0.0.1:${port}`;
@@ -44,7 +44,7 @@ function client(room, me) {
 
 test('serves the landing page and seeded rooms', async () => {
   const html = await fetch(base + '/').then((r) => r.text());
-  assert.match(html, /Comet/);
+  assert.match(html, /Midsentence/);
   const { rooms } = await fetch(base + '/api/rooms').then((r) => r.json());
   assert.ok(rooms.some((r) => r.id === 'lobby'));
 });

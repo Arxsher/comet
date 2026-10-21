@@ -1,7 +1,7 @@
 import { session, store } from './util.js';
 
 export const COLORS = [
-  { name: 'Comet', value: '#ff3932' },
+  { name: 'Scarlet', value: '#ff3932' },
   { name: 'Ember', value: '#ff8a3d' },
   { name: 'Sun', value: '#f5c542' },
   { name: 'Lime', value: '#9be15d' },
@@ -24,16 +24,16 @@ export const roomSlug = () => `${rand(ROOM_WORDS[0])}-${rand(ROOM_WORDS[1])}-${u
 
 /** One id per browser tab, so two tabs are two people (handy for testing). */
 export function tabId() {
-  let id = session.get('comet:tab');
+  let id = session.get('midsentence:tab');
   if (!id) {
     id = uid(12);
-    session.set('comet:tab', id);
+    session.set('midsentence:tab', id);
   }
   return id;
 }
 
 export function getProfile() {
-  const saved = store.get('comet:profile');
+  const saved = store.get('midsentence:profile');
   return {
     name: saved?.name || randomName(),
     color: COLORS.some((c) => c.value === saved?.color) ? saved.color : randomColor(),
@@ -42,5 +42,5 @@ export function getProfile() {
 }
 
 export function saveProfile({ name, color }) {
-  store.set('comet:profile', { name, color });
+  store.set('midsentence:profile', { name, color });
 }

@@ -1,4 +1,4 @@
-// Comet server: serves the static client from /public, a tiny JSON API for
+// Midsentence server: serves the static client from /public, a tiny JSON API for
 // rooms, and a WebSocket endpoint (/ws) that streams every keystroke.
 
 import { createServer } from 'node:http';
@@ -30,7 +30,7 @@ const SECURITY_HEADERS = {
   'Referrer-Policy': 'strict-origin-when-cross-origin',
 };
 
-export function createCometServer({ store = new RoomStore(), log = console.log } = {}) {
+export function createAppServer({ store = new RoomStore(), log = console.log } = {}) {
   const server = createServer((req, res) => {
     handle(req, res).catch((err) => {
       log('request failed', err);
@@ -314,6 +314,6 @@ function readJson(req) {
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const port = Number(process.env.PORT) || 3000;
-  const { server } = createCometServer();
-  server.listen(port, () => console.log(`☄️  Comet is live on http://localhost:${port}`));
+  const { server } = createAppServer();
+  server.listen(port, () => console.log(`Midsentence is live on http://localhost:${port}`));
 }

@@ -1,6 +1,6 @@
-# ☄️ Comet
+# Midsentence
 
-**Chat in real time, letter by letter.** Comet is a chat room with no send button: everyone in the room sees what you type *as you type it*, including typos and backspaces. Pressing <kbd>Enter</kbd> moves your line into the transcript and clears the stage for your next thought.
+**Chat in real time, letter by letter.** Midsentence is a chat room with no send button: everyone in the room sees what you type *as you type it*, including typos and backspaces. Pressing <kbd>Enter</kbd> moves your line into the transcript and clears the stage for your next thought.
 
 ## Features
 
@@ -11,7 +11,7 @@
 - **Keyboard-first.** <kbd>Enter</kbd> commits a line, <kbd>Esc</kbd> clears your draft, <kbd>↑</kbd> brings back your last line, <kbd>/</kbd> focuses the input, and typing anywhere on the room page starts a message. On the homepage, <kbd>C</kbd> creates a room and <kbd>J</kbd> joins the Lobby.
 - **Ephemeral.** Rooms live in memory only. A room is cleared about 10 minutes after the last person leaves.
 - **Resilient.** The client reconnects with backoff and keeps your seat. Lines you commit while offline are queued and sent when you're back.
-- **Works without a server.** On a static host, Comet switches to *local mode*, where rooms sync between tabs of the same browser through `BroadcastChannel`.
+- **Works without a server.** On a static host, Midsentence switches to *local mode*, where rooms sync between tabs of the same browser through `BroadcastChannel`.
 
 ## Quick start
 
@@ -51,8 +51,8 @@ test/                node:test suite for the API and socket protocol
 ## Deploying
 
 - **Full experience (multi-user):** deploy as a Node app on any host that supports long-lived WebSockets (Render, Railway, Fly.io, a VPS…) with `npm start`.
-- **Static only:** serve the `public/` folder from any static host (Vercel, Netlify, GitHub Pages). The app runs in local mode, so rooms only sync between tabs of one browser. On Vercel or Netlify, set the output or publish directory to `public`.
-- **Split hosting:** host `public/` statically and run the server elsewhere. Put the server's origin in the `<meta name="comet-server">` tag in `index.html` and `room.html`. The API sends CORS headers.
+- **Static only:** serve the `public/` folder from any static host (Vercel, Netlify, GitHub Pages). The app runs in local mode, so rooms only sync between tabs of one browser. On Vercel, the included `vercel.json` already serves `public/`, so you can import the repo without changing any settings. On Netlify, set the publish directory to `public`.
+- **Split hosting:** host `public/` statically and run the server elsewhere. Put the server's origin in the `<meta name="midsentence-server">` tag in `index.html` and `room.html`. The API sends CORS headers.
 
 ## Protocol
 

@@ -1,5 +1,5 @@
 {
-  "name": "comet",
+  "name": "midsentence",
   "version": "2.0.0",
   "description": "Real-time chat rooms where every letter shows up as it's typed. No send button.",
   "private": true,

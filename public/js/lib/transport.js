@@ -1,5 +1,5 @@
 // A room connection with one interface and two engines:
-//  - SocketRoom: the real thing, over WebSocket to the Comet server.
+//  - SocketRoom: the real thing, over WebSocket to the Midsentence server.
 //  - LocalRoom:  BroadcastChannel + localStorage, so the app still works
 //                (across tabs) when it's deployed as plain static files.
 
@@ -143,8 +143,8 @@ class LocalRoom extends Emitter {
     this.members = new Map();
     this.seen = new Map();
     this.closed = false;
-    this.linesKey = `comet:local:lines:${roomId}`;
-    this.presenceKey = `comet:local:presence:${roomId}`;
+    this.linesKey = `midsentence:local:lines:${roomId}`;
+    this.presenceKey = `midsentence:local:presence:${roomId}`;
     queueMicrotask(() => this.start());
   }
 
@@ -154,7 +154,7 @@ class LocalRoom extends Emitter {
       return this.emit('error', { code: 'not_found', message: 'This room has ended or never existed.' });
     }
     this.emit('status', 'local');
-    this.channel = 'BroadcastChannel' in window ? new BroadcastChannel(`comet:${this.roomId}`) : null;
+    this.channel = 'BroadcastChannel' in window ? new BroadcastChannel(`midsentence:${this.roomId}`) : null;
     if (this.channel) this.channel.onmessage = (e) => this.receive(e.data);
 
     this.writePresence();

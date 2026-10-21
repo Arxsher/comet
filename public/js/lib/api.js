@@ -1,12 +1,12 @@
-// Talks to the Comet server when there is one. On a static host (GitHub Pages,
+// Talks to the Midsentence server when there is one. On a static host (GitHub Pages,
 // Netlify, `npx serve`…) it falls back to "local mode": rooms live in
 // localStorage and sync between tabs of the same browser.
 
 import { store } from './util.js';
 import { roomSlug } from './identity.js';
 
-/** Set this to e.g. "https://comet.example.com" to use a server on another origin. */
-export const SERVER_ORIGIN = document.querySelector('meta[name="comet-server"]')?.content?.replace(/\/$/, '') || '';
+/** Set this to e.g. "https://chat.example.com" to use a server on another origin. */
+export const SERVER_ORIGIN = document.querySelector('meta[name="midsentence-server"]')?.content?.replace(/\/$/, '') || '';
 
 export const SEED_ROOMS = [
   { id: 'lobby', name: 'The Lobby', topic: 'Say hi. Everyone passes through here.' },
@@ -97,17 +97,17 @@ export async function createRoom({ id, name, topic, isPublic }) {
 
 export const local = {
   rooms() {
-    let rooms = store.get('comet:local:rooms');
+    let rooms = store.get('midsentence:local:rooms');
     if (!rooms) {
       rooms = {};
       const now = Date.now();
       for (const r of SEED_ROOMS) rooms[r.id] = { ...r, isPublic: true, createdAt: now, lastActivity: now - 1 };
-      store.set('comet:local:rooms', rooms);
+      store.set('midsentence:local:rooms', rooms);
     }
     return rooms;
   },
   presence(id) {
-    const all = store.get(`comet:local:presence:${id}`, {});
+    const all = store.get(`midsentence:local:presence:${id}`, {});
     const now = Date.now();
     return Object.entries(all)
       .filter(([, m]) => now - m.ts < PRESENCE_TTL)
@@ -139,14 +139,14 @@ export const local = {
       lastActivity: Date.now(),
     };
     rooms[room.id] = room;
-    store.set('comet:local:rooms', rooms);
+    store.set('midsentence:local:rooms', rooms);
     return this.summary(room);
   },
   touch(id) {
     const rooms = this.rooms();
     if (rooms[id]) {
       rooms[id].lastActivity = Date.now();
-      store.set('comet:local:rooms', rooms);
+      store.set('midsentence:local:rooms', rooms);
     }
   },
 };

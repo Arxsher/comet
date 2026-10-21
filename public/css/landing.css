@@ -1,11 +1,15 @@
 /* ==========================================================================
-   Comet — landing page
+   Midsentence — landing page
    ========================================================================== */
 
 main,
 .footer {
   position: relative;
   z-index: 2;
+}
+
+main {
+  overflow-x: clip;
 }
 
 .link {
@@ -324,7 +328,7 @@ main,
 }
 
 .hero::before {
-  /* The original Comet edge glow, softened into a frame around the hero. */
+  /* The original edge glow, softened into a frame around the hero. */
   content: '';
   position: absolute;
   inset: 10px 10px 0;
@@ -2302,7 +2306,7 @@ a.room-card:active {
 .footer-word {
   margin: 56px auto -0.18em;
   font-family: var(--font-mono);
-  font-size: clamp(96px, 24vw, 340px);
+  font-size: clamp(48px, 15vw, 220px);
   font-weight: 600;
   line-height: 0.9;
   letter-spacing: -0.09em;
