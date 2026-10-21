@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+    <title>Room · Comet</title>
+    <meta name="theme-color" content="#060606" />
+    <!-- Point at a Comet server on another origin (leave empty for same-origin / local mode) -->
+    <meta name="comet-server" content="" />
+    <link rel="icon" type="image/png" href="assets/logo.png" />
+    <script>document.documentElement.classList.add('js')</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Geist:wght@300..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/room.css" />
+    <script type="module" src="js/room.js"></script>
+  </head>
+
+  <body class="room-page" data-view="loading">
+    <div class="bg" aria-hidden="true">
+      <div class="bg-dots"></div>
+      <div class="bg-glow"></div>
+    </div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <!-- ========================================================= LOADING -->
+    <div class="view view-loading" data-view-panel="loading" aria-busy="true">
+      <img class="loading-mark" src="assets/logo.png" alt="" width="40" height="40" />
+      <p class="mono">Finding your room<span class="dots"><i>.</i><i>.</i><i>.</i></span></p>
+    </div>
+
+    <!-- =========================================================== LOBBY -->
+    <div class="view view-lobby" data-view-panel="lobby">
+      <a class="corner-brand" href="./">
+        <img src="assets/logo.png" alt="" width="22" height="22" />
+        <span>Comet</span>
+      </a>
+
+      <div class="lobby">
+        <div class="lobby-room">
+          <p class="lobby-eyebrow mono">You’re joining</p>
+          <h1 class="lobby-name" data-room-name>Room</h1>
+          <p class="lobby-topic" data-room-topic></p>
+          <div class="lobby-here" data-lobby-here></div>
+        </div>
+
+        <form class="lobby-form" data-join-form novalidate>
+          <label class="field">
+            <span class="field-label">Your name</span>
+            <span class="field-wrap">
+              <input name="name" maxlength="32" autocomplete="nickname" spellcheck="false" required data-name-input />
+              <button class="dice" type="button" aria-label="Pick a random name" data-dice>
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><rect x="3" y="3" width="14" height="14" rx="3.5" /><circle cx="7" cy="7" r="1" fill="currentColor" /><circle cx="13" cy="7" r="1" fill="currentColor" /><circle cx="10" cy="10" r="1" fill="currentColor" /><circle cx="7" cy="13" r="1" fill="currentColor" /><circle cx="13" cy="13" r="1" fill="currentColor" /></svg>
+              </button>
+            </span>
+          </label>
+
+          <fieldset class="field">
+            <legend class="field-label">Your color</legend>
+            <div class="swatches" data-swatches role="radiogroup" aria-label="Your color"></div>
+          </fieldset>
+
+          <div class="you-preview" aria-hidden="true" data-you-preview>
+            <span class="avatar" data-you-avatar></span>
+            <span class="you-tag" data-you-name></span>
+            <span class="you-typing"><span class="you-typed" data-you-typed>hi everyone</span><span class="caret"></span></span>
+          </div>
+
+          <p class="form-error" role="alert" data-join-error></p>
+
+          <button class="btn btn-primary btn-lg btn-block" type="submit" data-join-btn>
+            <span class="btn-label">Join room</span>
+            <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h11M11 5l5 5-5 5" /></svg></span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+          <p class="lobby-note">Heads up: people see what you type <em>as you type it</em>.</p>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========================================================= MISSING -->
+    <div class="view view-missing" data-view-panel="missing">
+      <a class="corner-brand" href="./">
+        <img src="assets/logo.png" alt="" width="22" height="22" />
+        <span>Comet</span>
+      </a>
+      <div class="notice">
+        <div class="notice-orb" aria-hidden="true"><span></span></div>
+        <h1 class="notice-title" data-missing-title>This room has <span class="serif accent">dissolved.</span></h1>
+        <p class="notice-text" data-missing-text>Rooms disappear a little while after the last person leaves — or this link was never a room to begin with.</p>
+        <div class="notice-actions">
+          <button class="btn btn-primary btn-lg" type="button" data-revive>
+            <span class="btn-label" data-revive-label>Start it again</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+          <a class="btn btn-ghost btn-lg" href="./#rooms"><span class="btn-label">Browse rooms</span></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ ROOM -->
+    <div class="view view-room" data-view-panel="room">
+      <header class="room-head">
+        <a class="icon-btn" href="./" aria-label="Leave room and go home" data-leave>
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10H5M9 5l-5 5 5 5" /></svg>
+        </a>
+        <div class="room-title">
+          <h1 data-room-name>Room</h1>
+          <p data-room-topic></p>
+        </div>
+        <div class="room-actions">
+          <span class="conn" data-conn data-state="connecting"><span class="conn-dot"></span><span class="conn-text" data-conn-text>Connecting</span></span>
+          <button class="people-btn" type="button" aria-label="Show people in this room" data-people-toggle>
+            <span class="avatar-stack" data-head-avatars></span>
+            <span class="people-count mono" data-head-count>0</span>
+          </button>
+          <button class="btn btn-ghost btn-sm share-btn" type="button" data-share>
+            <span class="share-icon" aria-hidden="true">
+              <svg class="i-link" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M8.5 11.5a3.5 3.5 0 005 0l2.5-2.5a3.5 3.5 0 00-5-5l-1 1" /><path d="M11.5 8.5a3.5 3.5 0 00-5 0L4 11a3.5 3.5 0 005 5l1-1" /></svg>
+              <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 10.5l3.5 3.5 7.5-8" /></svg>
+            </span>
+            <span class="btn-label" data-share-label>Invite</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="room-body">
+        <main class="room-main">
+          <div class="transcript" data-transcript role="log" aria-label="Conversation" aria-live="polite">
+            <div class="transcript-inner" data-lines></div>
+            <div class="empty" data-empty>
+              <div class="empty-art" aria-hidden="true">
+                <span class="empty-ring"></span><span class="empty-ring"></span>
+                <img src="assets/logo.png" alt="" width="34" height="34" />
+              </div>
+              <h2>It’s quiet in here.</h2>
+              <p>Say something — everyone sees it as you type.<br />Invite a friend to make it a conversation.</p>
+              <button class="btn btn-ghost btn-sm" type="button" data-share-empty><span class="btn-label">Copy invite link</span></button>
+            </div>
+          </div>
+
+          <div class="dock">
+            <button class="jump" type="button" data-jump hidden>
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4v12M5 11l5 5 5-5" /></svg>
+              <span data-jump-text>New messages</span>
+            </button>
+
+            <div class="stage" data-stage aria-hidden="true"></div>
+
+            <div class="composer" data-composer>
+              <span class="avatar" data-me-avatar></span>
+              <textarea data-input rows="1" maxlength="500" placeholder="Type anything — it’s already live" aria-label="Your live message. Everyone sees it as you type. Press Enter to commit the line." enterkeyhint="send" autocomplete="off"></textarea>
+              <span class="live-pill mono" data-live-pill><span class="live-pill-dot"></span>LIVE</span>
+            </div>
+            <div class="composer-hints">
+              <span><kbd>Enter</kbd> commit line</span>
+              <span><kbd>Esc</kbd> clear</span>
+              <span class="composer-count mono" data-count></span>
+            </div>
+          </div>
+        </main>
+
+        <aside class="sidebar" data-sidebar aria-label="Room details">
+          <div class="sheet-handle" aria-hidden="true"></div>
+          <section class="side-section">
+            <h2 class="side-title">In the room <span class="side-count mono" data-people-count>0</span></h2>
+            <ul class="people" data-people></ul>
+          </section>
+
+          <section class="side-section">
+            <h2 class="side-title">Invite</h2>
+            <button class="invite" type="button" data-share-side>
+              <span class="invite-url mono" data-invite-url></span>
+              <span class="invite-copy" aria-hidden="true">Copy</span>
+            </button>
+            <p class="side-note" data-privacy-note>Anyone with the link can join.</p>
+          </section>
+
+          <section class="side-section">
+            <h2 class="side-title">You</h2>
+            <form class="me-form" data-me-form>
+              <label class="sr-only" for="me-name">Display name</label>
+              <input class="input input--sm" id="me-name" maxlength="32" spellcheck="false" data-me-name />
+              <div class="swatches swatches--sm" data-me-swatches role="radiogroup" aria-label="Your color"></div>
+            </form>
+          </section>
+
+          <section class="side-section side-section--keys">
+            <h2 class="side-title">Shortcuts</h2>
+            <dl class="keys-list">
+              <div><dt><kbd>Enter</kbd></dt><dd>Commit your line</dd></div>
+              <div><dt><kbd>Esc</kbd></dt><dd>Clear your draft</dd></div>
+              <div><dt><kbd>/</kbd></dt><dd>Jump to the input</dd></div>
+              <div><dt><kbd>↑</kbd></dt><dd>Bring back your last line</dd></div>
+            </dl>
+          </section>
+        </aside>
+        <div class="sheet-backdrop" data-sheet-backdrop></div>
+      </div>
+    </div>
+  </body>
+</html>

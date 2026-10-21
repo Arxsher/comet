@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Comet — Chat in real time, letter by letter</title>
+    <meta name="description" content="Comet is a chat room with no send button. Every letter you type shows up live for everyone in the room." />
+    <meta name="theme-color" content="#060606" />
+    <!-- Point at a Comet server on another origin (leave empty for same-origin / local mode) -->
+    <meta name="comet-server" content="" />
+    <meta property="og:title" content="Comet — Speak your mind, live." />
+    <meta property="og:description" content="No waiting. No send button. Every letter you type shows up in real time." />
+    <meta property="og:image" content="assets/logo.png" />
+    <link rel="icon" type="image/png" href="assets/logo.png" />
+    <script>document.documentElement.classList.add('js')</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Geist:wght@300..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/landing.css" />
+    <script type="module" src="js/landing.js"></script>
+  </head>
+
+  <body class="landing">
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <div class="bg" aria-hidden="true">
+      <div class="bg-dots"></div>
+      <div class="bg-dots-lit"></div>
+    </div>
+    <div class="grain" aria-hidden="true"></div>
+
+    <!-- ============================================================ NAV -->
+    <header class="nav" data-nav>
+      <nav class="nav-pill" aria-label="Main">
+        <a class="brand" href="#top" aria-label="Comet home">
+          <img class="brand-mark" src="assets/logo.png" alt="" width="26" height="26" />
+          <span class="brand-name">Comet</span>
+        </a>
+
+        <ul class="nav-links" data-nav-links>
+          <li><a href="#about">About</a></li>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#rooms">Rooms</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li class="nav-hover" aria-hidden="true"></li>
+        </ul>
+
+        <button class="btn btn-primary btn-sm nav-cta" data-create-room>
+          <span class="btn-label">Create room</span>
+        </button>
+
+        <button class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu" data-burger>
+          <span></span><span></span>
+        </button>
+      </nav>
+
+      <div class="mobile-menu" id="mobile-menu" data-mobile-menu hidden>
+        <ul>
+          <li><a href="#about">About</a></li>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#rooms">Rooms</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+        <button class="btn btn-primary btn-lg btn-block" data-create-room>
+          <span class="btn-label">Create a room</span>
+        </button>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- ========================================================== HERO -->
+      <section class="hero" id="top">
+        <div class="hero-aurora" aria-hidden="true"></div>
+
+        <div class="hero-inner">
+          <a class="hero-badge" href="#rooms" data-hero-badge>
+            <span class="avatar-stack" data-hero-avatars>
+              <span class="avatar avatar--sm" style="--c: #f472b6; --i: 0">M</span>
+              <span class="avatar avatar--sm" style="--c: #38bdf8; --i: 1">L</span>
+              <span class="avatar avatar--sm" style="--c: #f5c542; --i: 2">A</span>
+            </span>
+            <span class="hero-badge-text" data-hero-count>Rooms are open — jump in</span>
+            <span class="hero-badge-arrow" aria-hidden="true">→</span>
+          </a>
+
+          <h1 class="hero-title" aria-label="Speak your mind live, instantly.">
+            <span class="hero-line" aria-hidden="true">
+              <span class="w" style="--d: 0">Speak</span>
+              <span class="w" style="--d: 1">your</span>
+              <span class="w" style="--d: 2">mind</span>
+            </span>
+            <span class="hero-line hero-line--live" aria-hidden="true">
+              <span class="live-word" data-live-word><span class="live-text">live</span><span class="live-caret"></span></span>
+            </span>
+            <span class="hero-line" aria-hidden="true">
+              <span class="w" style="--d: 5">instantly.</span>
+            </span>
+          </h1>
+
+          <p class="hero-sub">
+            <span class="hero-sub-typed" data-typewriter="No waiting. No send button. Every letter you type shows up in real time.">No waiting. No send button. Every letter you type shows up in real time.</span>
+            <span class="hero-sub-rest">Jump in, start typing, and feel the conversation flow.</span>
+          </p>
+
+          <div class="hero-cta">
+            <button class="btn btn-primary btn-lg" data-magnetic data-start-chatting>
+              <span class="btn-label">Start chatting</span>
+              <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h11M11 5l5 5-5 5" /></svg></span>
+              <span class="btn-spinner" aria-hidden="true"></span>
+            </button>
+            <a class="btn btn-ghost btn-lg" href="#how" data-magnetic="0.12">
+              <span class="btn-label">See how it works</span>
+            </a>
+          </div>
+          <p class="hero-hint"><kbd>C</kbd> create a room <span class="sep">·</span> <kbd>J</kbd> join the lobby</p>
+        </div>
+
+        <!-- Live product preview (simulated conversation) -->
+        <div class="preview" data-preview>
+          <div class="preview-window" data-spotlight>
+            <div class="preview-bar">
+              <span class="traffic" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="preview-url">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5" /><path d="M5.5 7V5.2a2.5 2.5 0 015 0V7" /></svg>
+                <span><span data-host>comet</span>/r/<b>late-night</b></span>
+              </span>
+              <span class="preview-live"><span class="pulse-dot"></span><span data-demo-count>4</span>&nbsp;live</span>
+            </div>
+            <div class="preview-body">
+              <div class="preview-room">
+                <div class="preview-room-head">
+                  <strong>Late Night Thoughts</strong>
+                  <span>For the 2am ideas that can’t wait.</span>
+                </div>
+                <div class="preview-transcript" data-demo-transcript aria-hidden="true"></div>
+                <div class="preview-stage" data-demo-stage aria-hidden="true"></div>
+                <div class="preview-composer" aria-hidden="true">
+                  <span class="avatar avatar--sm" style="--c: #ff3932">Y</span>
+                  <div class="preview-input">
+                    <span class="preview-input-text" data-demo-input></span><span class="caret"></span><span class="preview-placeholder" data-demo-placeholder>Type anything — it’s already live</span>
+                  </div>
+                  <span class="preview-enter"><kbd>↵</kbd></span>
+                </div>
+              </div>
+              <aside class="preview-side" aria-hidden="true">
+                <p class="preview-side-title">In the room</p>
+                <ul data-demo-people></ul>
+              </aside>
+            </div>
+          </div>
+          <p class="preview-caption">A simulated room. <a href="room.html?r=late-night" class="link">Open the real one →</a></p>
+        </div>
+      </section>
+
+      <!-- ===================================================== MARQUEE -->
+      <section class="marquee" aria-label="Time zones">
+        <p class="marquee-label">Same room, every time zone</p>
+        <div class="marquee-track" data-marquee>
+          <ul class="marquee-row" data-cities></ul>
+        </div>
+      </section>
+
+      <!-- ===================================================== FEATURES -->
+      <section class="section features" id="about">
+        <header class="section-head" data-reveal>
+          <p class="eyebrow"><span class="eyebrow-dot"></span>About Comet</p>
+          <h2 class="section-title">Conversation, <span class="serif accent">unfiltered.</span></h2>
+          <p class="section-sub">Most chat apps make you write, rewrite, then send. Comet removes the gap between thinking and talking — it feels less like messaging and more like being in the same room.</p>
+        </header>
+
+        <div class="bento" data-stagger>
+          <article class="card card--wide" data-spotlight data-reveal>
+            <div class="card-visual visual-typing" aria-hidden="true">
+              <div class="typing-line">
+                <span class="avatar avatar--sm" style="--c: #38bdf8">L</span>
+                <span class="typing-text" data-hot-typing></span><span class="caret" style="--c: #38bdf8"></span>
+              </div>
+              <div class="typing-meta mono"><span class="pulse-dot" style="--dot: #38bdf8"></span> Leo is typing — you see it as it happens</div>
+            </div>
+            <div class="card-copy">
+              <h3>Every keystroke, live.</h3>
+              <p>Letters stream to the room the moment you press them. Hesitations, corrections, the half-finished thought — that’s the conversation.</p>
+            </div>
+          </article>
+
+          <article class="card" data-spotlight data-reveal>
+            <div class="card-visual visual-send" aria-hidden="true">
+              <span class="fake-send">Send</span>
+              <span class="visual-send-or mono">just keep typing</span>
+            </div>
+            <div class="card-copy">
+              <h3>No send button.</h3>
+              <p>There’s nothing to send. <kbd>Enter</kbd> simply tucks your line into the transcript and clears the stage.</p>
+            </div>
+          </article>
+
+          <article class="card" data-spotlight data-reveal>
+            <div class="card-visual visual-link" aria-hidden="true">
+              <button class="link-pill" type="button" tabindex="-1" data-fake-copy>
+                <span class="mono"><span data-host>comet</span>/r/<b>quiet-otter-7f3</b></span>
+                <span class="link-pill-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="9" height="9" rx="2" /><path d="M13 7V5.5A1.5 1.5 0 0 0 11.5 4h-6A1.5 1.5 0 0 0 4 5.5v6A1.5 1.5 0 0 0 5.5 13H7" /></svg></span>
+                <span class="link-pill-done">Copied</span>
+              </button>
+            </div>
+            <div class="card-copy">
+              <h3>Rooms in one click.</h3>
+              <p>Name it, share the link, done. No accounts, no invites, no onboarding.</p>
+            </div>
+          </article>
+
+          <article class="card" data-spotlight data-reveal>
+            <div class="card-visual visual-ephemeral" aria-hidden="true">
+              <span style="--n: 0">so that’s the plan then</span>
+              <span style="--n: 1">see you all tomorrow</span>
+              <span style="--n: 2">goodnight ✨</span>
+            </div>
+            <div class="card-copy">
+              <h3>Ephemeral by default.</h3>
+              <p>Rooms live in memory and dissolve after the last person leaves. No archives to dig up later.</p>
+            </div>
+          </article>
+
+          <article class="card" data-spotlight data-reveal>
+            <div class="card-visual visual-presence" aria-hidden="true">
+              <div class="presence-row"><span class="avatar avatar--sm" style="--c: #f472b6">M</span><span>Maya</span><span class="presence-state is-typing"><i></i><i></i><i></i></span></div>
+              <div class="presence-row"><span class="avatar avatar--sm" style="--c: #9be15d">K</span><span>Kofi</span><span class="presence-state">here</span></div>
+              <div class="presence-row is-away"><span class="avatar avatar--sm" style="--c: #8b7bff">S</span><span>Sora</span><span class="presence-state">away</span></div>
+            </div>
+            <div class="card-copy">
+              <h3>Real presence.</h3>
+              <p>See who’s here, who’s typing, and who stepped away — without anyone announcing it.</p>
+            </div>
+          </article>
+
+          <article class="card card--strip" data-spotlight data-reveal>
+            <div class="card-copy">
+              <h3>Keyboard-first.</h3>
+              <p>Your hands never leave the keys. Try them — the caps below are listening.</p>
+            </div>
+            <div class="keys" aria-hidden="true">
+              <div class="key-group"><span class="keycap keycap--wide" data-key="Enter">Enter ↵</span><small>commit line</small></div>
+              <div class="key-group"><span class="keycap" data-key="Escape">Esc</span><small>clear draft</small></div>
+              <div class="key-group"><span class="keycap" data-key="/">/</span><small>focus input</small></div>
+              <div class="key-group"><span class="keycap" data-key="c">C</span><small>new room</small></div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ===================================================== HOW -->
+      <section class="section how" id="how">
+        <header class="section-head" data-reveal>
+          <p class="eyebrow"><span class="eyebrow-dot"></span>How it works</p>
+          <h2 class="section-title">Three steps. <span class="serif accent">Zero</span> friction.</h2>
+          <p class="section-sub">From idea to conversation in about ten seconds.</p>
+        </header>
+
+        <div class="steps-wrap" data-steps>
+        <div class="step-progress" aria-hidden="true"><span data-step-fill></span></div>
+        <ol class="steps">
+          <li class="step" data-reveal>
+            <span class="step-num mono">01</span>
+            <div class="step-visual" aria-hidden="true">
+              <div class="mini-field"><span class="mini-label">Room name</span><span class="mini-input"><span class="mini-typed">Book club</span><span class="caret"></span></span></div>
+              <div class="mini-toggle"><span>Public</span><span class="switch" aria-checked="true"><span class="switch-thumb"></span></span></div>
+            </div>
+            <h3>Create a room</h3>
+            <p>Give it a name and a topic. Public rooms show up on the homepage; private ones are link-only.</p>
+          </li>
+          <li class="step" data-reveal>
+            <span class="step-num mono">02</span>
+            <div class="step-visual" aria-hidden="true">
+              <div class="mini-share">
+                <span class="mono">/r/book-club-4a2</span>
+                <span class="mini-copy">Copy</span>
+                <span class="mini-cursor"><svg viewBox="0 0 16 16"><path d="M2 1l11 6.5-4.6 1.2L6.2 13z" fill="#fff" stroke="#000" stroke-width="1" /></svg></span>
+              </div>
+            </div>
+            <h3>Share the link</h3>
+            <p>Send it anywhere. Whoever opens it picks a name and a color, and they’re in.</p>
+          </li>
+          <li class="step" data-reveal>
+            <span class="step-num mono">03</span>
+            <div class="step-visual" aria-hidden="true">
+              <div class="mini-stage">
+                <span class="avatar avatar--sm" style="--c: #34d399">R</span>
+                <span class="mini-stream"><span>s</span><span>o</span><span> </span><span>w</span><span>h</span><span>o</span><span> </span><span>f</span><span>i</span><span>n</span><span>i</span><span>s</span><span>h</span><span>e</span><span>d</span><span>?</span></span>
+              </div>
+            </div>
+            <h3>Just start typing</h3>
+            <p>Your letters appear for everyone as you type them. Press <kbd>Enter</kbd> to move on to the next thought.</p>
+          </li>
+        </ol>
+        </div>
+      </section>
+
+      <!-- ===================================================== ROOMS -->
+      <section class="section rooms" id="rooms">
+        <header class="section-head section-head--row" data-reveal>
+          <div>
+            <p class="eyebrow"><span class="eyebrow-dot"></span>Rooms</p>
+            <h2 class="section-title">Drop into a <span class="serif accent">room.</span></h2>
+            <p class="section-sub" data-rooms-sub>Public rooms, open right now. Say hi — they can see you typing.</p>
+          </div>
+          <div class="rooms-tools">
+            <label class="search">
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="5.5" /><path d="M13.5 13.5L17 17" /></svg>
+              <span class="sr-only">Search rooms</span>
+              <input type="search" placeholder="Find a room" autocomplete="off" data-room-search />
+              <kbd data-search-kbd>/</kbd>
+            </label>
+          </div>
+        </header>
+
+        <div class="room-grid" data-room-grid aria-live="polite" aria-busy="true">
+          <div class="room-card skeleton" style="height: 196px"></div>
+          <div class="room-card skeleton" style="height: 196px"></div>
+          <div class="room-card skeleton" style="height: 196px"></div>
+        </div>
+      </section>
+
+      <!-- ===================================================== FAQ -->
+      <section class="section faq" id="faq">
+        <header class="section-head" data-reveal>
+          <p class="eyebrow"><span class="eyebrow-dot"></span>FAQ</p>
+          <h2 class="section-title">Good <span class="serif accent">questions.</span></h2>
+        </header>
+
+        <div class="faq-list" data-faq data-reveal>
+          <div class="faq-item">
+            <h3><button aria-expanded="false" aria-controls="faq-1" id="faq-1-btn">Can people really see every letter?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+            <div class="faq-panel" id="faq-1" role="region" aria-labelledby="faq-1-btn"><div><p>Yes — that’s the whole idea. Everyone in the room sees your line as you type it, typos and backspaces included. Pressing <kbd>Enter</kbd> moves it into the transcript. <kbd>Esc</kbd> clears what you’ve typed, though people may already have seen it.</p></div></div>
+          </div>
+          <div class="faq-item">
+            <h3><button aria-expanded="false" aria-controls="faq-2" id="faq-2-btn">Do I need an account?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+            <div class="faq-panel" id="faq-2" role="region" aria-labelledby="faq-2-btn"><div><p>No. Pick a display name and a color when you join a room. Comet remembers them in your browser for next time — nothing else.</p></div></div>
+          </div>
+          <div class="faq-item">
+            <h3><button aria-expanded="false" aria-controls="faq-3" id="faq-3-btn">Are conversations stored?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+            <div class="faq-panel" id="faq-3" role="region" aria-labelledby="faq-3-btn"><div><p>Only in the server’s memory while the room is in use, so people who join late can catch up on the last few hundred lines. A room is cleared about ten minutes after the last person leaves, and nothing is ever written to disk.</p></div></div>
+          </div>
+          <div class="faq-item">
+            <h3><button aria-expanded="false" aria-controls="faq-4" id="faq-4-btn">Can I make a private room?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+            <div class="faq-panel" id="faq-4" role="region" aria-labelledby="faq-4-btn"><div><p>Turn off “List on the homepage” when you create it. Private rooms don’t appear anywhere — only people with the link can get in.</p></div></div>
+          </div>
+          <div class="faq-item">
+            <h3><button aria-expanded="false" aria-controls="faq-5" id="faq-5-btn">What happens if my connection drops?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+            <div class="faq-panel" id="faq-5" role="region" aria-labelledby="faq-5-btn"><div><p>Comet reconnects on its own and keeps your seat. Anything you commit while offline is sent as soon as you’re back.</p></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================== CTA -->
+      <section class="section cta">
+        <div class="cta-card" data-spotlight data-reveal>
+          <div class="cta-glow" aria-hidden="true"></div>
+          <h2 class="cta-title">The conversation is <span class="serif accent">already</span> happening.</h2>
+          <p class="cta-sub">Start a room in seconds, or wander into one that’s already going.</p>
+          <div class="cta-actions">
+            <button class="btn btn-primary btn-lg" data-create-room data-magnetic>
+              <span class="btn-label">Create a room</span>
+              <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h11M11 5l5 5-5 5" /></svg></span>
+            </button>
+            <a class="btn btn-ghost btn-lg" href="room.html?r=lobby" data-magnetic="0.12"><span class="btn-label">Join the Lobby</span></a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ===================================================== FOOTER -->
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a class="brand" href="#top"><img class="brand-mark" src="assets/logo.png" alt="" width="26" height="26" /><span class="brand-name">Comet</span></a>
+          <p>Chat in real time, letter by letter.</p>
+          <p class="footer-status mono"><span class="pulse-dot" data-status-dot></span><span data-status-text>Checking connection…</span></p>
+        </div>
+        <nav class="footer-cols" aria-label="Footer">
+          <div>
+            <p class="footer-head">Product</p>
+            <a href="#about">About</a>
+            <a href="#how">How it works</a>
+            <a href="#rooms">Rooms</a>
+            <a href="#faq">FAQ</a>
+          </div>
+          <div>
+            <p class="footer-head">Popular rooms</p>
+            <a href="room.html?r=lobby">The Lobby</a>
+            <a href="room.html?r=late-night">Late Night Thoughts</a>
+            <a href="room.html?r=design-crit">Design Crit</a>
+            <a href="room.html?r=code-and-coffee">Code &amp; Coffee</a>
+          </div>
+        </nav>
+      </div>
+      <div class="footer-word" aria-hidden="true">comet</div>
+      <div class="footer-base">
+        <span>© <span data-year>2026</span> Comet</span>
+        <span>Made for people who think out loud.</span>
+      </div>
+    </footer>
+  </body>
+</html>

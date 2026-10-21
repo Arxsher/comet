@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Lost in space · Comet</title>
+    <meta name="theme-color" content="#060606" />
+    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Geist:wght@300..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/base.css" />
+    <style>
+      main {
+        position: relative;
+        z-index: 2;
+        display: grid;
+        place-items: center;
+        align-content: center;
+        gap: 18px;
+        min-height: 100dvh;
+        padding: 24px 16px;
+        text-align: center;
+      }
+      .code {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        letter-spacing: 0.2em;
+        color: var(--fg-4);
+      }
+      h1 {
+        font-family: var(--font-mono);
+        font-size: clamp(32px, 6vw, 56px);
+        font-weight: 400;
+        letter-spacing: -0.055em;
+        line-height: 1.05;
+        animation: fade-up 0.9s var(--ease) both;
+      }
+      h1 em {
+        font-family: var(--font-serif);
+        color: var(--red-hi);
+        font-size: 1.1em;
+        text-shadow: 0 0 28px rgba(255, 57, 50, 0.45);
+      }
+      p {
+        max-width: 420px;
+        color: var(--fg-3);
+        animation: fade-up 0.9s var(--ease) 0.1s both;
+      }
+      .actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 12px;
+        animation: fade-up 0.9s var(--ease) 0.2s both;
+      }
+      .mark {
+        animation: drift 6s ease-in-out infinite;
+        filter: drop-shadow(0 0 18px rgba(110, 220, 235, 0.35));
+      }
+      @keyframes drift {
+        50% {
+          transform: translate(10px, -10px) rotate(-12deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg" aria-hidden="true"><div class="bg-dots"></div></div>
+    <main>
+      <img class="mark" src="/assets/logo.png" alt="" width="56" height="56" />
+      <span class="code">404</span>
+      <h1>Lost in <em>space.</em></h1>
+      <p>This page drifted out of orbit. The good conversations are back on the homepage.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="/"><span class="btn-label">Back to Comet</span></a>
+        <a class="btn btn-ghost" href="/room.html?r=lobby"><span class="btn-label">Join the Lobby</span></a>
+      </div>
+    </main>
+  </body>
+</html>
