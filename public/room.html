@@ -1,48 +1,66 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
     <title>Room · Midsentence</title>
-    <meta name="theme-color" content="#060606" />
-    <!-- Point at a Midsentence server on another origin (leave empty for same-origin / local mode) -->
+    <meta name="theme-color" content="#f2efe7" />
+    <!-- Optional: a Midsentence Node server on another origin. Empty = same origin, else the public relay. -->
     <meta name="midsentence-server" content="" />
-    <link rel="icon" type="image/png" href="assets/logo.png" />
-    <script>document.documentElement.classList.add('js')</script>
+    <!-- Optional: comma-separated MQTT-over-WebSocket relays. Empty = defaults, "off" = disable. -->
+    <meta name="midsentence-relay" content="" />
+    <link rel="icon" type="image/svg+xml" href="assets/mark.svg" />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem('midsentence:theme'); } catch (e) {}
+        var dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        document.documentElement.classList.add('js');
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Geist:wght@300..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Fraunces:ital,opsz,wght@1,9..144,300..600&family=Inter:opsz,wght@14..32,300..700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/room.css" />
     <script type="module" src="js/room.js"></script>
   </head>
 
   <body class="room-page" data-view="loading">
-    <div class="bg" aria-hidden="true">
-      <div class="bg-dots"></div>
-      <div class="bg-glow"></div>
-    </div>
     <div class="grain" aria-hidden="true"></div>
+
+    <div class="corner" data-corner>
+      <a class="logo" href="./" aria-label="Midsentence home">
+        <svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" width="64" height="64" rx="18" /><rect class="bar" x="13" y="29" width="22" height="6" rx="3" /><rect class="caret" x="40" y="15" width="7" height="34" rx="3.5" /></svg>
+        <span>midsentence</span>
+      </a>
+      <button class="icon-btn theme-toggle" type="button" aria-label="Switch theme" data-theme-toggle>
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <mask id="moon-mask"><rect width="24" height="24" fill="#fff" /><circle class="moon-cut" cx="25" cy="2" r="6.5" fill="#000" /></mask>
+          <circle class="sun" cx="12" cy="12" r="5" fill="currentColor" mask="url(#moon-mask)" />
+          <g class="rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1.8v2.4M12 19.8v2.4M1.8 12h2.4M19.8 12h2.4M4.8 4.8l1.7 1.7M17.5 17.5l1.7 1.7M4.8 19.2l1.7-1.7M17.5 6.5l1.7-1.7" /></g>
+        </svg>
+      </button>
+    </div>
 
     <!-- ========================================================= LOADING -->
     <div class="view view-loading" data-view-panel="loading" aria-busy="true">
-      <img class="loading-mark" src="assets/logo.png" alt="" width="40" height="40" />
-      <p class="mono">Finding your room<span class="dots"><i>.</i><i>.</i><i>.</i></span></p>
+      <div class="loading-type" aria-hidden="true"><span data-loading-text></span><span class="caret"></span></div>
+      <p class="sr-only">Finding your room…</p>
     </div>
 
     <!-- =========================================================== LOBBY -->
     <div class="view view-lobby" data-view-panel="lobby">
-      <a class="corner-brand" href="./">
-        <img src="assets/logo.png" alt="" width="22" height="22" />
-        <span>Midsentence</span>
-      </a>
-
       <div class="lobby">
         <div class="lobby-room">
-          <p class="lobby-eyebrow mono">You’re joining</p>
+          <p class="lobby-eyebrow">You’re joining</p>
           <h1 class="lobby-name" data-room-name>Room</h1>
           <p class="lobby-topic" data-room-topic></p>
-          <div class="lobby-here" data-lobby-here></div>
+          <div class="lobby-meta">
+            <div class="lobby-here" data-lobby-here></div>
+            <span class="lock-badge" data-e2e hidden><span class="lock-icon" aria-hidden="true"></span>End-to-end encrypted</span>
+          </div>
         </div>
 
         <form class="lobby-form" data-join-form novalidate>
@@ -57,44 +75,44 @@
           </label>
 
           <fieldset class="field">
-            <legend class="field-label">Your color</legend>
-            <div class="swatches" data-swatches role="radiogroup" aria-label="Your color"></div>
+            <legend class="field-label">Your colour</legend>
+            <div class="swatches" data-swatches role="radiogroup" aria-label="Your colour"></div>
           </fieldset>
 
-          <div class="you-preview" aria-hidden="true" data-you-preview>
-            <span class="avatar" data-you-avatar></span>
-            <span class="you-tag" data-you-name></span>
-            <span class="you-typing"><span class="you-typed" data-you-typed>hi everyone</span><span class="caret"></span></span>
+          <div class="you-preview" aria-hidden="true">
+            <span class="you-label">How others will see you</span>
+            <div class="you-card">
+              <span class="avatar avatar--sm" data-you-avatar></span>
+              <span class="you-name" data-you-name></span>
+              <span class="you-text"><span data-you-typed></span><span class="caret"></span></span>
+            </div>
           </div>
 
           <p class="form-error" role="alert" data-join-error></p>
 
           <button class="btn btn-primary btn-lg btn-block" type="submit" data-join-btn>
             <span class="btn-label">Join room</span>
-            <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h11M11 5l5 5-5 5" /></svg></span>
+            <span class="btn-dot" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg></span>
             <span class="btn-spinner" aria-hidden="true"></span>
           </button>
-          <p class="lobby-note">Heads up: people see what you type <em>as you type it</em>.</p>
+          <p class="lobby-note">Heads up — people see what you type <em>as you type it</em>.</p>
         </form>
       </div>
     </div>
 
     <!-- ========================================================= MISSING -->
     <div class="view view-missing" data-view-panel="missing">
-      <a class="corner-brand" href="./">
-        <img src="assets/logo.png" alt="" width="22" height="22" />
-        <span>Midsentence</span>
-      </a>
       <div class="notice">
-        <div class="notice-orb" aria-hidden="true"><span></span></div>
-        <h1 class="notice-title" data-missing-title>This room has <span class="serif accent">dissolved.</span></h1>
+        <div class="notice-art" aria-hidden="true"><span>r</span><span>o</span><span>o</span><span>m</span></div>
+        <h1 class="notice-title" data-missing-title>This room has <span class="serif">dissolved.</span></h1>
         <p class="notice-text" data-missing-text>Rooms disappear a little while after the last person leaves — or this link was never a room to begin with.</p>
         <div class="notice-actions">
           <button class="btn btn-primary btn-lg" type="button" data-revive>
             <span class="btn-label" data-revive-label>Start it again</span>
+            <span class="btn-dot" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg></span>
             <span class="btn-spinner" aria-hidden="true"></span>
           </button>
-          <a class="btn btn-ghost btn-lg" href="./#rooms"><span class="btn-label">Browse rooms</span></a>
+          <a class="btn btn-secondary btn-lg" href="./#rooms"><span class="btn-label">Browse rooms</span></a>
         </div>
       </div>
     </div>
@@ -110,12 +128,13 @@
           <p data-room-topic></p>
         </div>
         <div class="room-actions">
+          <span class="lock-badge lock-badge--sm" data-e2e hidden title="Messages are encrypted in your browser. Only people with the link can read them."><span class="lock-icon" aria-hidden="true"></span><span class="lock-text">Encrypted</span></span>
           <span class="conn" data-conn data-state="connecting"><span class="conn-dot"></span><span class="conn-text" data-conn-text>Connecting</span></span>
           <button class="people-btn" type="button" aria-label="Show people in this room" data-people-toggle>
             <span class="avatar-stack" data-head-avatars></span>
-            <span class="people-count mono" data-head-count>0</span>
+            <span class="people-count tnum" data-head-count>0</span>
           </button>
-          <button class="btn btn-ghost btn-sm share-btn" type="button" data-share>
+          <button class="btn btn-secondary btn-sm share-btn" type="button" data-share>
             <span class="share-icon" aria-hidden="true">
               <svg class="i-link" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M8.5 11.5a3.5 3.5 0 005 0l2.5-2.5a3.5 3.5 0 00-5-5l-1 1" /><path d="M11.5 8.5a3.5 3.5 0 00-5 0L4 11a3.5 3.5 0 005 5l1-1" /></svg>
               <svg class="i-check" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 10.5l3.5 3.5 7.5-8" /></svg>
@@ -130,13 +149,10 @@
           <div class="transcript" data-transcript role="log" aria-label="Conversation" aria-live="polite">
             <div class="transcript-inner" data-lines></div>
             <div class="empty" data-empty>
-              <div class="empty-art" aria-hidden="true">
-                <span class="empty-ring"></span><span class="empty-ring"></span>
-                <img src="assets/logo.png" alt="" width="34" height="34" />
-              </div>
-              <h2>It’s quiet in here.</h2>
-              <p>Say something — everyone sees it as you type.<br />Invite a friend to make it a conversation.</p>
-              <button class="btn btn-ghost btn-sm" type="button" data-share-empty><span class="btn-label">Copy invite link</span></button>
+              <p class="empty-kicker">It’s quiet in here.</p>
+              <h2 class="empty-title">Say the first <span class="serif">word.</span></h2>
+              <p class="empty-text">Everyone sees it as you type it. Invite someone to make it a conversation.</p>
+              <button class="btn btn-secondary btn-sm" type="button" data-share-empty><span class="btn-label">Copy invite link</span></button>
             </div>
           </div>
 
@@ -150,13 +166,14 @@
 
             <div class="composer" data-composer>
               <span class="avatar" data-me-avatar></span>
-              <textarea data-input rows="1" maxlength="500" placeholder="Type anything — it’s already live" aria-label="Your live message. Everyone sees it as you type. Press Enter to commit the line." enterkeyhint="send" autocomplete="off"></textarea>
-              <span class="live-pill mono" data-live-pill><span class="live-pill-dot"></span>LIVE</span>
+              <textarea data-input rows="1" maxlength="500" placeholder="Type anything — it’s live" aria-label="Your live message. Everyone sees it as you type. Press Enter to commit the line." enterkeyhint="send" autocomplete="off"></textarea>
+              <span class="live-pill" data-live-pill><span class="live-pill-dot"></span>Live</span>
             </div>
             <div class="composer-hints">
               <span><kbd>Enter</kbd> commit line</span>
               <span><kbd>Esc</kbd> clear</span>
-              <span class="composer-count mono" data-count></span>
+              <span><kbd>↑</kbd> last line</span>
+              <span class="composer-count tnum" data-count></span>
             </div>
           </div>
         </main>
@@ -164,14 +181,14 @@
         <aside class="sidebar" data-sidebar aria-label="Room details">
           <div class="sheet-handle" aria-hidden="true"></div>
           <section class="side-section">
-            <h2 class="side-title">In the room <span class="side-count mono" data-people-count>0</span></h2>
+            <h2 class="side-title">In the room <span class="side-count tnum" data-people-count>0</span></h2>
             <ul class="people" data-people></ul>
           </section>
 
           <section class="side-section">
             <h2 class="side-title">Invite</h2>
             <button class="invite" type="button" data-share-side>
-              <span class="invite-url mono" data-invite-url></span>
+              <span class="invite-url" data-invite-url></span>
               <span class="invite-copy" aria-hidden="true">Copy</span>
             </button>
             <p class="side-note" data-privacy-note>Anyone with the link can join.</p>
@@ -182,7 +199,7 @@
             <form class="me-form" data-me-form>
               <label class="sr-only" for="me-name">Display name</label>
               <input class="input input--sm" id="me-name" maxlength="32" spellcheck="false" data-me-name />
-              <div class="swatches swatches--sm" data-me-swatches role="radiogroup" aria-label="Your color"></div>
+              <div class="swatches swatches--sm" data-me-swatches role="radiogroup" aria-label="Your colour"></div>
             </form>
           </section>
 

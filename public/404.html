@@ -1,79 +1,83 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Lost in space · Midsentence</title>
-    <meta name="theme-color" content="#060606" />
-    <link rel="icon" type="image/png" href="/assets/logo.png" />
+    <title>Lost mid-sentence · Midsentence</title>
+    <meta name="theme-color" content="#f2efe7" />
+    <link rel="icon" type="image/svg+xml" href="/assets/mark.svg" />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem('midsentence:theme'); } catch (e) {}
+        var dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Geist:wght@300..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Fraunces:ital,opsz,wght@1,9..144,300..600&family=Inter:opsz,wght@14..32,300..700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/css/base.css" />
     <style>
       main {
-        position: relative;
-        z-index: 2;
         display: grid;
         place-items: center;
         align-content: center;
-        gap: 18px;
+        gap: 22px;
         min-height: 100dvh;
-        padding: 24px 16px;
+        padding: 24px 18px;
         text-align: center;
       }
       .code {
-        font-family: var(--font-mono);
         font-size: 13px;
-        letter-spacing: 0.2em;
-        color: var(--fg-4);
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        color: var(--ink-3);
       }
       h1 {
-        font-family: var(--font-mono);
-        font-size: clamp(32px, 6vw, 56px);
-        font-weight: 400;
-        letter-spacing: -0.055em;
-        line-height: 1.05;
-        animation: fade-up 0.9s var(--ease) both;
+        font-family: var(--font-display);
+        font-size: clamp(48px, 9vw, 120px);
+        font-weight: 600;
+        line-height: 0.9;
+        letter-spacing: -0.06em;
+        animation: rise 1s var(--ease) both;
       }
-      h1 em {
-        font-family: var(--font-serif);
-        color: var(--red-hi);
-        font-size: 1.1em;
-        text-shadow: 0 0 28px rgba(255, 57, 50, 0.45);
+      h1 .serif {
+        font-weight: 400;
+      }
+      h1 .caret {
+        width: 0.06em;
+        height: 0.75em;
+        vertical-align: -0.02em;
       }
       p {
         max-width: 420px;
-        color: var(--fg-3);
-        animation: fade-up 0.9s var(--ease) 0.1s both;
+        font-size: 17.5px;
+        color: var(--ink-2);
+        animation: rise 1s var(--ease) 0.1s both;
       }
       .actions {
         display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
         gap: 12px;
-        margin-top: 12px;
-        animation: fade-up 0.9s var(--ease) 0.2s both;
-      }
-      .mark {
-        animation: drift 6s ease-in-out infinite;
-        filter: drop-shadow(0 0 18px rgba(110, 220, 235, 0.35));
-      }
-      @keyframes drift {
-        50% {
-          transform: translate(10px, -10px) rotate(-12deg);
-        }
+        margin-top: 10px;
+        animation: rise 1s var(--ease) 0.2s both;
       }
     </style>
   </head>
   <body>
-    <div class="bg" aria-hidden="true"><div class="bg-dots"></div></div>
+    <div class="grain" aria-hidden="true"></div>
     <main>
-      <img class="mark" src="/assets/logo.png" alt="" width="56" height="56" />
-      <span class="code">404</span>
-      <h1>Lost in <em>space.</em></h1>
-      <p>This page drifted out of orbit. The good conversations are back on the homepage.</p>
+      <span class="code">ERROR 404</span>
+      <h1>Lost mid&#8209;<span class="serif">sent</span><span class="caret"></span></h1>
+      <p>This page trailed off before it finished. The conversations are back on the homepage.</p>
       <div class="actions">
-        <a class="btn btn-primary" href="/"><span class="btn-label">Back to Midsentence</span></a>
-        <a class="btn btn-ghost" href="/room.html?r=lobby"><span class="btn-label">Join the Lobby</span></a>
+        <a class="btn btn-primary btn-lg" href="/">
+          <span class="btn-label">Back home</span>
+          <span class="btn-dot" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg></span>
+        </a>
+        <a class="btn btn-secondary btn-lg" href="/room.html?r=lobby"><span class="btn-label">Join the Lobby</span></a>
       </div>
     </main>
   </body>

@@ -1,14 +1,19 @@
-// A room connection with one interface and two engines:
-//  - SocketRoom: the real thing, over WebSocket to the Midsentence server.
-//  - LocalRoom:  BroadcastChannel + localStorage, so the app still works
-//                (across tabs) when it's deployed as plain static files.
+// A room connection with one interface and three engines:
+//  - SocketRoom: over WebSocket to the Midsentence server.
+//  - RelayRoom:  over public MQTT brokers, end-to-end encrypted (relay.js), so
+//                rooms are fully multi-user on a plain static host.
+//  - LocalRoom:  BroadcastChannel + localStorage: tabs of one browser only,
+//                for when relay mode is turned off.
 
-import { wsUrl, local } from './api.js';
+import { wsUrl, local, relayHub, SEED_ROOMS } from './api.js';
+import { RelayRoom } from './relay.js';
 import { store } from './util.js';
 import { uid } from './identity.js';
 
 export function connectRoom({ mode, ...options }) {
-  return mode === 'server' ? new SocketRoom(options) : new LocalRoom(options);
+  if (mode === 'server') return new SocketRoom(options);
+  if (mode === 'relay') return new RelayRoom({ ...options, hub: relayHub(), seeds: SEED_ROOMS });
+  return new LocalRoom(options);
 }
 
 class Emitter {
@@ -191,7 +196,8 @@ class LocalRoom extends Emitter {
       case 'here': {
         const known = this.members.has(msg.member.id);
         this.track(msg.member);
-        if (!known) this.emit('join', { member: msg.member });
+        // A `here` reply means we merely discovered someone already in the room.
+        if (!known) this.emit('join', { member: msg.member, quiet: msg.t === 'here' });
         if (msg.t === 'join') this.post({ t: 'here', member: this.me });
         break;
       }
@@ -246,7 +252,7 @@ class LocalRoom extends Emitter {
     for (const [id, m] of fresh) {
       if (id !== this.me.id && !this.members.has(id)) {
         this.track(m);
-        this.emit('join', { member: { id, ...m } });
+        this.emit('join', { member: { id, ...m }, quiet: true });
       }
     }
   }

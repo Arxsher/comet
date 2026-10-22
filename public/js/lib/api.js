@@ -1,9 +1,12 @@
-// Talks to the Midsentence server when there is one. On a static host (GitHub Pages,
-// Netlify, `npx serve`…) it falls back to "local mode": rooms live in
-// localStorage and sync between tabs of the same browser.
+// Talks to the Midsentence server when there is one. On a static host (Vercel,
+// GitHub Pages, Netlify, `npx serve`…) it switches to "relay mode": rooms run
+// over free public MQTT brokers, end-to-end encrypted (see relay.js). "Local
+// mode" (rooms sync between tabs of one browser) is only used when relay mode
+// is turned off with <meta name="midsentence-relay" content="off">.
 
 import { store } from './util.js';
 import { roomSlug } from './identity.js';
+import { DEFAULT_RELAYS, RelayDirectory, RelayHub, createRelayRoom, getRelayRoom } from './relay.js';
 
 /** Set this to e.g. "https://chat.example.com" to use a server on another origin. */
 export const SERVER_ORIGIN = document.querySelector('meta[name="midsentence-server"]')?.content?.replace(/\/$/, '') || '';
@@ -20,6 +23,7 @@ const PRESENCE_TTL = 9000;
 const ID_RE = /^[a-z0-9](?:[a-z0-9-]{1,46})[a-z0-9]$/;
 
 let modePromise;
+/** 'server' when a Midsentence server answers, else 'relay' (or 'local' if relay is turned off). */
 export function getMode() {
   modePromise ||= (async () => {
     try {
@@ -28,25 +32,52 @@ export function getMode() {
       const res = await fetch(`${SERVER_ORIGIN}/api/health`, { signal: ctrl.signal, cache: 'no-store' });
       clearTimeout(timer);
       const body = res.ok ? await res.json() : null;
-      return body?.ok ? 'server' : 'local';
-    } catch {
-      return 'local';
-    }
+      if (body?.ok) return 'server';
+    } catch {}
+    return relayUrls().length ? 'relay' : 'local';
   })();
   return modePromise;
 }
+
+/**
+ * Broker URLs for relay mode, from (in order) localStorage['midsentence:relay'],
+ * <meta name="midsentence-relay">, or the defaults. Comma-separated; "off" disables relay mode.
+ */
+export function relayUrls() {
+  let raw = null;
+  try {
+    raw = localStorage.getItem('midsentence:relay');
+  } catch {}
+  if (!raw?.trim()) raw = document.querySelector('meta[name="midsentence-relay"]')?.content || '';
+  if (raw.trim().toLowerCase() === 'off') return [];
+  const urls = raw
+    .split(',')
+    .map((url) => url.trim())
+    .filter((url) => /^wss?:\/\//i.test(url));
+  return urls.length ? urls : DEFAULT_RELAYS;
+}
+
+let hub;
+let directory;
+/** The page's one connection to the relay brokers, shared by lookups, the room list and the room. */
+export const relayHub = () => (hub ||= new RelayHub({ urls: relayUrls() }));
+const relayDirectory = () => (directory ||= new RelayDirectory(relayHub(), { seeds: SEED_ROOMS }));
 
 export function wsUrl() {
   const origin = SERVER_ORIGIN || location.origin;
   return origin.replace(/^http/, 'ws') + '/ws';
 }
 
-export function shareUrl(id, mode) {
+/**
+ * Links to link-only relay rooms carry the id in the #fragment: there the id is
+ * the encryption key, and fragments never reach the web server's logs.
+ */
+export function shareUrl(id, mode, { secret = false } = {}) {
   if (mode === 'server') return `${SERVER_ORIGIN || location.origin}/r/${id}`;
-  return new URL(`room.html?r=${encodeURIComponent(id)}`, location.href).href;
+  return new URL(roomHref(id, { secret }), location.href).href;
 }
 
-export const roomHref = (id) => `room.html?r=${encodeURIComponent(id)}`;
+export const roomHref = (id, { secret = false } = {}) => (secret ? `room.html#${encodeURIComponent(id)}` : `room.html?r=${encodeURIComponent(id)}`);
 export const isValidRoomId = (id) => typeof id === 'string' && ID_RE.test(id);
 
 async function request(path, options = {}) {
@@ -62,12 +93,22 @@ async function request(path, options = {}) {
 // ------------------------------------------------------------------ public
 
 export async function listRooms() {
-  if ((await getMode()) === 'server') return (await request('/api/rooms')).rooms;
+  const mode = await getMode();
+  if (mode === 'server') return (await request('/api/rooms')).rooms;
+  if (mode === 'relay') {
+    await relayDirectory().ready();
+    return relayDirectory().rooms();
+  }
   return local.list();
 }
 
 export async function getStats() {
-  if ((await getMode()) === 'server') return request('/api/stats');
+  const mode = await getMode();
+  if (mode === 'server') return request('/api/stats');
+  if (mode === 'relay') {
+    await relayDirectory().ready();
+    return relayDirectory().stats();
+  }
   const rooms = local.list();
   const people = rooms.reduce((n, r) => n + r.people, 0);
   return { people, liveRooms: rooms.filter((r) => r.people).length, rooms: rooms.length };
@@ -75,7 +116,8 @@ export async function getStats() {
 
 export async function getRoom(id) {
   if (!isValidRoomId(id)) return null;
-  if ((await getMode()) === 'server') {
+  const mode = await getMode();
+  if (mode === 'server') {
     try {
       return (await request(`/api/rooms/${id}`)).room;
     } catch (err) {
@@ -83,14 +125,58 @@ export async function getRoom(id) {
       throw err;
     }
   }
+  if (mode === 'relay') return getRelayRoom(relayHub(), id, { seeds: SEED_ROOMS, directory: relayDirectory() });
   return local.get(id);
 }
 
 export async function createRoom({ id, name, topic, isPublic }) {
-  if ((await getMode()) === 'server') {
+  const mode = await getMode();
+  if (mode === 'server') {
     return (await request('/api/rooms', { method: 'POST', body: JSON.stringify({ id, name, topic, isPublic }) })).room;
   }
+  // Relay mode gives link-only rooms a long random id: there, the id is the encryption key.
+  if (mode === 'relay') return createRelayRoom(relayHub(), { id, name, topic, isPublic, seeds: SEED_ROOMS });
   return local.create({ id, name, topic, isPublic });
+}
+
+/**
+ * Calls callback(rooms) with the public room list as soon as it's known and
+ * again whenever it changes. Relay mode pushes updates; the server and local
+ * modes poll every 8s while the page is visible. Returns unsubscribe().
+ */
+export function watchRooms(callback) {
+  let stopped = false;
+  let stop = () => {};
+  getMode().then((mode) => {
+    if (stopped) return;
+    if (mode === 'relay') {
+      stop = relayDirectory().watch(callback);
+      return;
+    }
+    let last = null;
+    const refresh = async () => {
+      try {
+        const rooms = await listRooms();
+        const key = JSON.stringify(rooms);
+        if (!stopped && key !== last) {
+          last = key;
+          callback(rooms);
+        }
+      } catch {}
+    };
+    const poll = () => document.visibilityState === 'visible' && refresh();
+    const timer = setInterval(poll, 8000);
+    document.addEventListener('visibilitychange', poll);
+    refresh();
+    stop = () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', poll);
+    };
+  });
+  return () => {
+    stopped = true;
+    stop();
+  };
 }
 
 // ------------------------------------------------------------- local mode

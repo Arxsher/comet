@@ -2,7 +2,7 @@ import { $, $$, h, avatar, clock, copyText, diffChars, reducedMotion, isTouch, s
 import { getMode, getRoom, createRoom, shareUrl, isValidRoomId } from './lib/api.js';
 import { COLORS, getProfile, saveProfile, randomName, tabId, uid } from './lib/identity.js';
 import { connectRoom } from './lib/transport.js';
-import { toast, initRipples, openCreateRoom } from './lib/ui.js';
+import { toast, openCreateRoom, initThemeToggle } from './lib/ui.js';
 
 const REACTIONS = ['👍', '❤️', '😂', '🔥', '👀', '✨'];
 const GROUP_WINDOW = 3 * 60 * 1000;
@@ -52,7 +52,8 @@ const setView = (name) => (document.body.dataset.view = name);
 boot();
 
 async function boot() {
-  initRipples();
+  initThemeToggle($('[data-theme-toggle]'));
+  typeLoading();
   applyMe();
   if (!isValidRoomId(roomId)) return showMissing({ invalid: true });
 
@@ -72,6 +73,13 @@ async function boot() {
     return enterRoom();
   }
   showLobby();
+}
+
+function typeLoading() {
+  const target = $('[data-loading-text]');
+  const word = 'finding your room…';
+  if (!motion) return (target.textContent = word);
+  [...word].forEach((ch, i) => setTimeout(() => document.body.dataset.view === 'loading' && target.append(h('span.fresh', { style: { '--c': '#d7ff3a' } }, ch)), 140 + i * 45));
 }
 
 // ================================================================ identity
@@ -148,7 +156,9 @@ function showLobby() {
   swatches($('[data-swatches]'), (color) => {
     state.me.color = color;
     applyMe();
+    typePreview();
   });
+  typePreview();
 
   name.addEventListener('input', () => {
     state.me.name = name.value.trim();
@@ -191,12 +201,22 @@ function showLobby() {
   }, 5000);
 }
 
+let previewTimers = [];
+function typePreview() {
+  const target = $('[data-you-typed]');
+  previewTimers.forEach(clearTimeout);
+  target.replaceChildren();
+  const text = 'hey everyone 👋';
+  if (!motion) return (target.textContent = text);
+  previewTimers = [...text].map((ch, i) => setTimeout(() => target.append(h('span.fresh', { style: { '--c': state.me.color } }, ch)), 80 + i * 55));
+}
+
 function renderLobbyHere(room) {
   const here = $('[data-lobby-here]');
   if (room.people > 0) {
     here.replaceChildren(
       h('span.avatar-stack', room.members.slice(0, 4).map((m, i) => Object.assign(avatar(m), { style: `--c:${m.color};--i:${i}` }))),
-      h('span.pulse-dot'),
+      h('span.dot-live'),
       h('span', `${plural(room.people, 'person', 'people')} here now`)
     );
   } else {
@@ -215,21 +235,21 @@ function showMissing({ invalid = false, offline = false, full = false } = {}) {
   const label = $('[data-revive-label]');
 
   if (invalid) {
-    title.replaceChildren('No room ', h('span.serif.accent', 'here.'));
+    title.replaceChildren('No room ', h('span.serif', 'here.'));
     text.textContent = 'This link doesn’t point to a room. Want to start a fresh one?';
     label.textContent = 'Create a room';
     revive.onclick = () => openCreateRoom(revive);
     return;
   }
   if (offline) {
-    title.replaceChildren('Can’t reach ', h('span.serif.accent', 'Midsentence.'));
+    title.replaceChildren('Can’t reach ', h('span.serif', 'Midsentence.'));
     text.textContent = 'The server didn’t answer. Check your connection and try again.';
     label.textContent = 'Try again';
     revive.onclick = () => location.reload();
     return;
   }
   if (full) {
-    title.replaceChildren('This room is ', h('span.serif.accent', 'full.'));
+    title.replaceChildren('This room is ', h('span.serif', 'full.'));
     text.textContent = 'Rooms hold up to 50 people at once. Try again in a bit, or start your own.';
     label.textContent = 'Start a room';
     revive.onclick = () => openCreateRoom(revive);
@@ -267,8 +287,16 @@ function renderRoomInfo() {
   const { room } = state;
   for (const node of $$('[data-room-name]')) node.textContent = room.name;
   for (const node of $$('[data-room-topic]')) node.textContent = room.topic || '';
-  $('[data-invite-url]').textContent = shareUrl(roomId, state.mode).replace(/^https?:\/\//, '');
-  $('[data-privacy-note]').textContent = room.isPublic === false ? 'Link-only room — it isn’t listed anywhere.' : 'Listed on the homepage. Anyone with the link can join.';
+  $('[data-invite-url]').textContent = shareUrl(roomId, state.mode, { secret: state.room?.isPublic === false }).replace(/^https?:\/\//, '');
+  const e2e = state.mode === 'relay' && room.isPublic === false;
+  for (const node of $$('[data-e2e]')) node.hidden = !e2e;
+  // Keep the key out of the query string (and so out of server logs) from here on.
+  if (e2e && new URLSearchParams(location.search).has('r')) history.replaceState(null, '', `room.html#${roomId}`);
+  $('[data-privacy-note]').textContent = e2e
+    ? 'Link-only and end-to-end encrypted — only people with this link can read along.'
+    : room.isPublic === false
+      ? 'Link-only room — it isn’t listed anywhere.'
+      : 'Listed on the homepage. Anyone with the link can join.';
 }
 
 let roomReady = false;
@@ -303,7 +331,7 @@ function connect() {
     on: {
       status: setStatus,
       welcome: onWelcome,
-      join: ({ member }) => addMember(member, { announce: true }),
+      join: ({ member, quiet }) => addMember(member, { announce: !quiet }),
       leave: ({ id }) => removeMember(id),
       profile: ({ member }) => updateMember(member),
       type: ({ id, text, caret }) => onType(id, text, caret),
@@ -467,7 +495,7 @@ class LiveRow {
     this.text = h('div.live-text', this.caret);
     this.name = h('span');
     this.who = h('div.live-who');
-    this.el = h('div.live-wrap.is-entering', h('div.live-row', h('div.live-card', this.who, this.text)));
+    this.el = h('div.live-row.is-entering', h('div', h('div.live-card', this.who, this.text)));
     this.setMember(member);
     el.stage.append(this.el);
     requestAnimationFrame(() => requestAnimationFrame(() => this.el.classList.remove('is-entering')));
@@ -484,7 +512,7 @@ class LiveRow {
     const { start, removed, inserted } = diffChars(this.chars, next);
     for (const s of this.spans.slice(start, start + removed)) s.remove();
     const anchor = this.spans[start + removed] || null;
-    const fresh = inserted.map((ch) => h(instant || !motion ? 'span' : 'span.hot', ch));
+    const fresh = inserted.map((ch) => h(instant || !motion ? 'span' : 'span.fresh', ch));
     for (const s of fresh) this.text.insertBefore(s, anchor);
     this.spans.splice(start, removed, ...fresh);
     this.chars = next;
@@ -923,7 +951,7 @@ function initShare() {
   let timer;
 
   async function share(source) {
-    const url = shareUrl(roomId, state.mode);
+    const url = shareUrl(roomId, state.mode, { secret: state.room?.isPublic === false });
     if (navigator.share && isTouch()) {
       try {
         await navigator.share({ title: state.room.name, text: `Join me in “${state.room.name}” on Midsentence`, url });

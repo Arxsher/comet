@@ -1,13 +1,69 @@
 import { $, $$, h, reducedMotion, isTouch, session } from './util.js';
 import { createRoom, roomHref } from './api.js';
 
+export const arrowIcon = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>';
+export const checkIcon = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></svg>';
+export const closeIcon = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"/></svg>';
+export const lockIcon = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="10" height="7" rx="2"/><path d="M5.5 7V5a2.5 2.5 0 015 0v2"/></svg>';
+export const markSvg = '<svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" width="64" height="64" rx="18"/><rect class="bar" x="13" y="29" width="22" height="6" rx="3"/><rect class="caret" x="40" y="15" width="7" height="34" rx="3.5"/></svg>';
+
+// ------------------------------------------------------------------ theme
+
+const THEME_KEY = 'midsentence:theme';
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  const meta = $('meta[name="theme-color"]');
+  if (meta) meta.content = theme === 'dark' ? '#0d0d0c' : '#f2efe7';
+}
+
+/** Theme switch that wipes the new theme in as a circle from the button. */
+export function initThemeToggle(button) {
+  if (!button) return;
+  const label = () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    button.setAttribute('aria-label', `Switch to ${next} theme`);
+  };
+  label();
+  button.addEventListener('click', () => {
+    const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+    try {
+      localStorage.setItem(THEME_KEY, next);
+    } catch {}
+    const swap = () => {
+      applyTheme(next);
+      label();
+    };
+    if (!document.startViewTransition || reducedMotion()) return swap();
+    const r = button.getBoundingClientRect();
+    const x = r.left + r.width / 2;
+    const y = r.top + r.height / 2;
+    const root = document.documentElement.style;
+    root.setProperty('--vt-x', `${x}px`);
+    root.setProperty('--vt-y', `${y}px`);
+    root.setProperty('--vt-r', `${Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y))}px`);
+    document.startViewTransition(swap);
+  });
+  // Follow the OS setting until the person picks a theme themselves.
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    let saved = null;
+    try {
+      saved = localStorage.getItem(THEME_KEY);
+    } catch {}
+    if (!saved) {
+      applyTheme(e.matches ? 'dark' : 'light');
+      label();
+    }
+  });
+}
+
 // ------------------------------------------------------------------ toasts
 
 let toastRoot;
-export function toast(message, { icon = '', tone = 'default', duration = 3200 } = {}) {
+export function toast(message, { icon = '✓', duration = 3200 } = {}) {
   toastRoot ||= document.body.appendChild(h('div.toasts', { role: 'status', 'aria-live': 'polite' }));
   const el = h(
-    `div.toast.toast--${tone}`,
+    'div.toast',
     icon && h('span.toast-icon', { 'aria-hidden': 'true' }, icon),
     h('span.toast-text', message),
     h('span.toast-progress', { style: { animationDuration: `${duration}ms` } })
@@ -86,7 +142,7 @@ export function createModal(root, { onOpen, onClose } = {}) {
     }
   });
 
-  return { open, close, get isOpen() { return !root.hidden; } };
+  return { open, close };
 }
 
 // ------------------------------------------------------- create-room dialog
@@ -99,28 +155,34 @@ export function openCreateRoom(trigger, preset = {}) {
   createDialog.open(trigger, preset);
 }
 
+/** Create a room and walk into it — shared by the dialog and inline forms. */
+export async function createAndEnter({ name, topic = '', isPublic = true, id }) {
+  const [room] = await Promise.all([createRoom({ id, name, topic, isPublic }), new Promise((r) => setTimeout(r, 450))]);
+  session.set('midsentence:autojoin', room.id);
+  return room;
+}
+
 function buildCreateDialog() {
-  const switchBtn = h('button.switch', { type: 'button', role: 'switch', 'aria-checked': 'true', 'aria-label': 'List this room publicly' }, h('span.switch-thumb'));
+  const switchBtn = h('button.switch', { type: 'button', role: 'switch', 'aria-checked': 'false', 'aria-labelledby': 'create-private-label' }, h('span.switch-thumb'));
   const nameInput = h('input', { name: 'name', maxlength: 48, placeholder: 'Late night ideas', autocomplete: 'off', spellcheck: 'false' });
   const topicInput = h('input', { name: 'topic', maxlength: 90, placeholder: 'What’s this room about?', autocomplete: 'off' });
   const count = h('span.field-count', '0/48');
   const error = h('p.form-error', { role: 'alert' });
+  const privateNote = h('span', 'Hidden from the homepage — only people with the link can get in.');
   const submit = h(
     'button.btn.btn-primary.btn-lg.btn-block',
     { type: 'submit' },
     h('span.btn-label', 'Create room'),
-    h('span.btn-icon', { 'aria-hidden': 'true', html: arrowIcon }),
+    h('span.btn-dot', { 'aria-hidden': 'true', html: arrowIcon }),
     h('span.btn-spinner', { 'aria-hidden': 'true' }),
     h('span.btn-check', { 'aria-hidden': 'true', html: checkIcon })
   );
 
   const chips = h(
     'div.chips',
-    { role: 'list', 'aria-label': 'Ideas' },
     IDEAS.map((idea) =>
       h('button.chip', {
         type: 'button',
-        role: 'listitem',
         onclick: () => {
           nameInput.value = idea;
           nameInput.dispatchEvent(new Event('input'));
@@ -133,18 +195,14 @@ function buildCreateDialog() {
   const form = h(
     'form.modal-card',
     { novalidate: true },
-    h('button.modal-x', { type: 'button', 'data-close': true, 'aria-label': 'Close' }, h('span', { html: closeIcon })),
-    h('div.modal-mark', { 'aria-hidden': 'true' }, h('img', { src: 'assets/logo.png', alt: '', width: 28, height: 28 })),
+    h('button.icon-btn.modal-x', { type: 'button', 'data-close': true, 'aria-label': 'Close', html: closeIcon }),
+    h('p.modal-eyebrow', h('span', { html: markSvg }), 'New room'),
     h('h2.modal-title', { id: 'create-title' }, 'Start a room'),
-    h('p.modal-sub', 'Name it, share the link, start typing. It dissolves when the last person leaves.'),
+    h('p.modal-sub', 'Name it, share the link, start typing.'),
     h('label.field', h('span.field-label', 'Room name'), h('span.field-wrap', nameInput, count)),
     chips,
     h('label.field', h('span.field-label', 'Topic ', h('em', 'optional')), h('span.field-wrap', topicInput)),
-    h(
-      'div.toggle-row',
-      h('div', h('strong', 'List on the homepage'), h('span', 'Anyone can find and join. Turn off for link-only.')),
-      switchBtn
-    ),
+    h('div.toggle-row', h('div', h('strong', { id: 'create-private-label' }, 'Link-only room'), privateNote), switchBtn),
     error,
     submit,
     h('p.modal-foot', 'No account needed · ', h('kbd', 'Esc'), ' to close')
@@ -152,10 +210,11 @@ function buildCreateDialog() {
 
   const root = h('div.modal', { role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'create-title', hidden: true }, h('div.modal-backdrop', { 'data-close': true }), form);
   document.body.append(root);
+  $('.modal-eyebrow .logo-mark', root).style.cssText = 'width:20px;height:20px';
 
   let busy = false;
   const modal = createModal(root, {
-    onOpen: () => setTimeout(() => nameInput.focus(), 60),
+    onOpen: () => setTimeout(() => nameInput.focus(), 80),
     onClose: () => reset(),
   });
 
@@ -166,16 +225,14 @@ function buildCreateDialog() {
     submit.disabled = false;
     error.textContent = '';
     count.textContent = '0/48';
-    switchBtn.setAttribute('aria-checked', 'true');
+    switchBtn.setAttribute('aria-checked', 'false');
   }
 
   nameInput.addEventListener('input', () => {
     count.textContent = `${nameInput.value.length}/48`;
     count.classList.toggle('is-near', nameInput.value.length > 40);
-    if (error.textContent) error.textContent = '';
-    form.classList.remove('has-error');
+    error.textContent = '';
   });
-
   switchBtn.addEventListener('click', () => {
     switchBtn.setAttribute('aria-checked', String(switchBtn.getAttribute('aria-checked') !== 'true'));
   });
@@ -196,14 +253,15 @@ function buildCreateDialog() {
     submit.disabled = true;
     submit.classList.add('is-loading');
     try {
-      const [room] = await Promise.all([
-        createRoom({ name, topic: topicInput.value.trim(), isPublic: switchBtn.getAttribute('aria-checked') === 'true', id: form.dataset.id || undefined }),
-        new Promise((r) => setTimeout(r, 450)),
-      ]);
+      const room = await createAndEnter({
+        name,
+        topic: topicInput.value.trim(),
+        isPublic: switchBtn.getAttribute('aria-checked') !== 'true',
+        id: form.dataset.id || undefined,
+      });
       submit.classList.remove('is-loading');
       submit.classList.add('is-done');
-      session.set('midsentence:autojoin', room.id);
-      setTimeout(() => (location.href = roomHref(room.id)), 420);
+      setTimeout(() => (location.href = roomHref(room.id, { secret: room.isPublic === false })), 380);
     } catch (err) {
       busy = false;
       submit.disabled = false;
@@ -227,7 +285,7 @@ function buildCreateDialog() {
 
 // ------------------------------------------------------------ interactions
 
-/** Cards and buttons that light up under the cursor. */
+/** Cards that light up under the cursor. */
 export function initSpotlight(root = document) {
   if (isTouch()) return;
   root.addEventListener('pointermove', (e) => {
@@ -243,13 +301,11 @@ export function initSpotlight(root = document) {
 export function initMagnetic(root = document) {
   if (isTouch() || reducedMotion()) return;
   for (const el of $$('[data-magnetic]', root)) {
-    const strength = Number(el.dataset.magnetic) || 0.18;
+    const strength = Number(el.dataset.magnetic) || 0.2;
     el.addEventListener('pointermove', (e) => {
       const r = el.getBoundingClientRect();
-      const x = (e.clientX - r.left - r.width / 2) * strength;
-      const y = (e.clientY - r.top - r.height / 2) * strength;
-      el.style.setProperty('--tx', `${x}px`);
-      el.style.setProperty('--ty', `${y}px`);
+      el.style.setProperty('--tx', `${(e.clientX - r.left - r.width / 2) * strength}px`);
+      el.style.setProperty('--ty', `${(e.clientY - r.top - r.height / 2) * strength}px`);
     });
     el.addEventListener('pointerleave', () => {
       el.style.setProperty('--tx', '0px');
@@ -262,7 +318,7 @@ export function initMagnetic(root = document) {
 export function initReveal(root = document) {
   const items = $$('[data-reveal]', root);
   for (const group of $$('[data-stagger]', root)) {
-    [...group.children].forEach((child, i) => child.style.setProperty('--i', i));
+    [...group.children].forEach((child, i) => child.style.setProperty('--i', i % 3));
   }
   if (!('IntersectionObserver' in window) || reducedMotion()) {
     items.forEach((el) => el.classList.add('is-in'));
@@ -276,27 +332,7 @@ export function initReveal(root = document) {
         io.unobserve(entry.target);
       }
     },
-    { rootMargin: '0px 0px -12% 0px', threshold: 0.08 }
+    { rootMargin: '0px 0px -10% 0px', threshold: 0.06 }
   );
   items.forEach((el) => io.observe(el));
 }
-
-/** Click ripple on buttons — tiny, but it makes presses feel physical. */
-export function initRipples(root = document) {
-  root.addEventListener('pointerdown', (e) => {
-    const btn = e.target.closest?.('.btn, .chip, .icon-btn');
-    if (!btn || reducedMotion()) return;
-    const r = btn.getBoundingClientRect();
-    const size = Math.max(r.width, r.height) * 2;
-    const dot = h('span.ripple', {
-      style: { width: `${size}px`, height: `${size}px`, left: `${e.clientX - r.left - size / 2}px`, top: `${e.clientY - r.top - size / 2}px` },
-    });
-    btn.append(dot);
-    dot.addEventListener('animationend', () => dot.remove(), { once: true });
-  });
-}
-
-export const arrowIcon = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h11M11 5l5 5-5 5"/></svg>';
-export const checkIcon = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></svg>';
-export const closeIcon = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 5l10 10M15 5L5 15"/></svg>';
-export const copyIcon = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="9" height="9" rx="2"/><path d="M13 7V5.5A1.5 1.5 0 0 0 11.5 4h-6A1.5 1.5 0 0 0 4 5.5v6A1.5 1.5 0 0 0 5.5 13H7"/></svg>';

@@ -1,391 +1,401 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Midsentence — Chat in real time, letter by letter</title>
-    <meta name="description" content="Midsentence is a chat room with no send button. Every letter you type shows up live for everyone in the room." />
-    <meta name="theme-color" content="#060606" />
-    <!-- Point at a Midsentence server on another origin (leave empty for same-origin / local mode) -->
+    <title>Midsentence — say it as you think it</title>
+    <meta name="description" content="Midsentence is a chat room without a send button. Every letter lands the moment you type it — the pauses, the edits, the half-finished thought." />
+    <meta name="theme-color" content="#f2efe7" />
+    <!-- Optional: a Midsentence Node server on another origin. Empty = same origin, else the public relay. -->
     <meta name="midsentence-server" content="" />
-    <meta property="og:title" content="Midsentence — Speak your mind, live." />
-    <meta property="og:description" content="No waiting. No send button. Every letter you type shows up in real time." />
-    <meta property="og:image" content="assets/logo.png" />
-    <link rel="icon" type="image/png" href="assets/logo.png" />
-    <script>document.documentElement.classList.add('js')</script>
+    <!-- Optional: comma-separated MQTT-over-WebSocket relays. Empty = defaults, "off" = disable. -->
+    <meta name="midsentence-relay" content="" />
+    <meta property="og:title" content="Midsentence — say it as you think it" />
+    <meta property="og:description" content="A chat room without a send button. Every letter lands the moment you type it." />
+    <meta property="og:image" content="/assets/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="assets/mark.svg" />
+    <script>
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem('midsentence:theme'); } catch (e) {}
+        var dark = t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        document.documentElement.classList.add('js');
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Geist:wght@300..700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Fraunces:ital,opsz,wght@1,9..144,300..600&family=Inter:opsz,wght@14..32,300..700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/landing.css" />
     <script type="module" src="js/landing.js"></script>
   </head>
 
-  <body class="landing">
+  <body>
     <a class="skip-link" href="#main">Skip to content</a>
-
-    <div class="bg" aria-hidden="true">
-      <div class="bg-dots"></div>
-      <div class="bg-dots-lit"></div>
-    </div>
     <div class="grain" aria-hidden="true"></div>
 
-    <!-- ============================================================ NAV -->
+    <!-- ================================================================ NAV -->
     <header class="nav" data-nav>
-      <nav class="nav-pill" aria-label="Main">
-        <a class="brand" href="#top" aria-label="Midsentence home">
-          <img class="brand-mark" src="assets/logo.png" alt="" width="26" height="26" />
-          <span class="brand-name">Midsentence</span>
+      <div class="nav-inner">
+        <a class="logo" href="#top" aria-label="Midsentence home">
+          <svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" width="64" height="64" rx="18" /><rect class="bar" x="13" y="29" width="22" height="6" rx="3" /><rect class="caret" x="40" y="15" width="7" height="34" rx="3.5" /></svg>
+          <span>midsentence</span>
         </a>
 
-        <ul class="nav-links" data-nav-links>
-          <li><a href="#about">About</a></li>
-          <li><a href="#how">How it works</a></li>
-          <li><a href="#rooms">Rooms</a></li>
-          <li><a href="#faq">FAQ</a></li>
-          <li class="nav-hover" aria-hidden="true"></li>
-        </ul>
+        <nav class="nav-links" aria-label="Main" data-nav-links>
+          <a href="#how">How it works</a>
+          <a href="#features">Features</a>
+          <a href="#rooms">Rooms</a>
+          <a href="#faq">FAQ</a>
+          <span class="nav-hover" aria-hidden="true"></span>
+        </nav>
 
-        <button class="btn btn-primary btn-sm nav-cta" data-create-room>
-          <span class="btn-label">Create room</span>
-        </button>
-
-        <button class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu" data-burger>
-          <span></span><span></span>
-        </button>
-      </nav>
+        <div class="nav-actions">
+          <button class="icon-btn theme-toggle" type="button" aria-label="Switch theme" data-theme-toggle>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <mask id="moon-mask"><rect width="24" height="24" fill="#fff" /><circle class="moon-cut" cx="25" cy="2" r="6.5" fill="#000" /></mask>
+              <circle class="sun" cx="12" cy="12" r="5" fill="currentColor" mask="url(#moon-mask)" />
+              <g class="rays" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1.8v2.4M12 19.8v2.4M1.8 12h2.4M19.8 12h2.4M4.8 4.8l1.7 1.7M17.5 17.5l1.7 1.7M4.8 19.2l1.7-1.7M17.5 6.5l1.7-1.7" /></g>
+            </svg>
+          </button>
+          <button class="btn btn-primary btn-sm nav-cta" type="button" data-create-room>
+            <span class="btn-label">Start a room</span>
+            <span class="btn-dot" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg></span>
+          </button>
+          <button class="icon-btn burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu" data-burger><span></span><span></span></button>
+        </div>
+      </div>
 
       <div class="mobile-menu" id="mobile-menu" data-mobile-menu hidden>
-        <ul>
-          <li><a href="#about">About</a></li>
-          <li><a href="#how">How it works</a></li>
-          <li><a href="#rooms">Rooms</a></li>
-          <li><a href="#faq">FAQ</a></li>
-        </ul>
-        <button class="btn btn-primary btn-lg btn-block" data-create-room>
-          <span class="btn-label">Create a room</span>
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#rooms">Rooms</a>
+        <a href="#faq">FAQ</a>
+        <button class="btn btn-primary btn-lg btn-block" type="button" data-create-room>
+          <span class="btn-label">Start a room</span>
+          <span class="btn-dot" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg></span>
         </button>
       </div>
     </header>
 
     <main id="main">
-      <!-- ========================================================== HERO -->
+      <!-- ============================================================ HERO -->
       <section class="hero" id="top">
-        <div class="hero-aurora" aria-hidden="true"></div>
+        <canvas class="field" data-field aria-hidden="true"></canvas>
 
         <div class="hero-inner">
-          <a class="hero-badge" href="#rooms" data-hero-badge>
-            <span class="avatar-stack" data-hero-avatars>
-              <span class="avatar avatar--sm" style="--c: #f472b6; --i: 0">M</span>
-              <span class="avatar avatar--sm" style="--c: #38bdf8; --i: 1">L</span>
-              <span class="avatar avatar--sm" style="--c: #f5c542; --i: 2">A</span>
-            </span>
-            <span class="hero-badge-text" data-hero-count>Rooms are open — jump in</span>
-            <span class="hero-badge-arrow" aria-hidden="true">→</span>
-          </a>
-
-          <h1 class="hero-title" aria-label="Speak your mind live, instantly.">
-            <span class="hero-line" aria-hidden="true">
-              <span class="w" style="--d: 0">Speak</span>
-              <span class="w" style="--d: 1">your</span>
-              <span class="w" style="--d: 2">mind</span>
-            </span>
-            <span class="hero-line hero-line--live" aria-hidden="true">
-              <span class="live-word" data-live-word><span class="live-text">live</span><span class="live-caret"></span></span>
-            </span>
-            <span class="hero-line" aria-hidden="true">
-              <span class="w" style="--d: 5">instantly.</span>
-            </span>
-          </h1>
-
-          <p class="hero-sub">
-            <span class="hero-sub-typed" data-typewriter="No waiting. No send button. Every letter you type shows up in real time.">No waiting. No send button. Every letter you type shows up in real time.</span>
-            <span class="hero-sub-rest">Jump in, start typing, and feel the conversation flow.</span>
-          </p>
-
-          <div class="hero-cta">
-            <button class="btn btn-primary btn-lg" data-magnetic data-start-chatting>
-              <span class="btn-label">Start chatting</span>
-              <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h11M11 5l5 5-5 5" /></svg></span>
-              <span class="btn-spinner" aria-hidden="true"></span>
-            </button>
-            <a class="btn btn-ghost btn-lg" href="#how" data-magnetic="0.12">
-              <span class="btn-label">See how it works</span>
+          <div class="hero-copy">
+            <a class="live-pill" href="#rooms" data-live-pill>
+              <span class="avatar-stack" data-live-avatars></span>
+              <span class="dot-live"></span>
+              <span class="tnum" data-live-text>Rooms are open — jump in</span>
             </a>
-          </div>
-          <p class="hero-hint"><kbd>C</kbd> create a room <span class="sep">·</span> <kbd>J</kbd> join the lobby</p>
-        </div>
 
-        <!-- Live product preview (simulated conversation) -->
-        <div class="preview" data-preview>
-          <div class="preview-window" data-spotlight>
-            <div class="preview-bar">
-              <span class="traffic" aria-hidden="true"><i></i><i></i><i></i></span>
-              <span class="preview-url">
-                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3.5" y="7" width="9" height="6.5" rx="1.5" /><path d="M5.5 7V5.2a2.5 2.5 0 015 0V7" /></svg>
-                <span><span data-host>midsentence</span>/r/<b>late-night</b></span>
-              </span>
-              <span class="preview-live"><span class="pulse-dot"></span><span data-demo-count>4</span>&nbsp;live</span>
+            <h1 class="hero-title" aria-label="Say it as you think it.">
+              <span class="line" aria-hidden="true"><span class="w" style="--d: 0">Say</span> <span class="w" style="--d: 1">it</span> <span class="w" style="--d: 2">as</span> <span class="w" style="--d: 3">you</span></span>
+              <span class="line" aria-hidden="true"><span class="w w-think" style="--d: 4"><span class="serif">think</span><span class="mark-stroke"></span></span> <span class="w" style="--d: 5">it.</span><span class="hero-caret"></span></span>
+            </h1>
+
+            <p class="hero-sub">Midsentence is a chat room without a send button. Every letter lands the moment you type it — the pauses, the edits, the half&#8209;finished thought.</p>
+
+            <div class="hero-cta">
+              <button class="btn btn-primary btn-lg" type="button" data-create-room data-magnetic>
+                <span class="btn-label">Start a room</span>
+                <span class="btn-dot" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg></span>
+              </button>
+              <a class="link-arrow" href="room.html?r=lobby">Join the Lobby <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg></a>
             </div>
-            <div class="preview-body">
-              <div class="preview-room">
-                <div class="preview-room-head">
-                  <strong>Late Night Thoughts</strong>
-                  <span>For the 2am ideas that can’t wait.</span>
-                </div>
-                <div class="preview-transcript" data-demo-transcript aria-hidden="true"></div>
-                <div class="preview-stage" data-demo-stage aria-hidden="true"></div>
-                <div class="preview-composer" aria-hidden="true">
-                  <span class="avatar avatar--sm" style="--c: #ff3932">Y</span>
-                  <div class="preview-input">
-                    <span class="preview-input-text" data-demo-input></span><span class="caret"></span><span class="preview-placeholder" data-demo-placeholder>Type anything — it’s already live</span>
-                  </div>
-                  <span class="preview-enter"><kbd>↵</kbd></span>
-                </div>
-              </div>
-              <aside class="preview-side" aria-hidden="true">
-                <p class="preview-side-title">In the room</p>
-                <ul data-demo-people></ul>
-              </aside>
-            </div>
+
+            <ul class="hero-proof">
+              <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="5.5" r="2.5" /><path d="M3 13.5c.7-2.3 2.7-3.5 5-3.5s4.3 1.2 5 3.5" /><path d="M2 2l12 12" /></svg>No sign-up</li>
+              <li data-mode-only="relay"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="2" /><path d="M5.5 7V5a2.5 2.5 0 015 0v2" /></svg>Private rooms are end-to-end encrypted</li>
+              <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="12" height="8" rx="1.5" /><path d="M5.5 14h5M8 11v3" /></svg>Works on every screen</li>
+            </ul>
           </div>
-          <p class="preview-caption">A simulated room. <a href="room.html?r=late-night" class="link">Open the real one →</a></p>
+
+          <!-- Interactive demo: the visitor can actually type in here. -->
+          <div class="demo" data-demo>
+            <div class="demo-card" data-tilt>
+              <header class="demo-head">
+                <div class="demo-title">
+                  <span class="dot-live"></span>
+                  <strong>The Lobby</strong>
+                  <span class="demo-tag">demo</span>
+                </div>
+                <span class="avatar-stack" data-demo-avatars></span>
+              </header>
+              <div class="demo-lines" data-demo-lines aria-hidden="true"></div>
+              <div class="demo-stage" data-demo-stage aria-hidden="true"></div>
+              <label class="demo-composer">
+                <span class="avatar avatar--sm demo-you">Y</span>
+                <input data-demo-input maxlength="90" autocomplete="off" spellcheck="false" placeholder="Try it — type something…" aria-label="Try typing in the demo room" />
+                <kbd>Enter</kbd>
+              </label>
+            </div>
+            <p class="demo-note demo-note--a" aria-hidden="true"><span class="serif">every letter, as it lands</span><svg viewBox="0 0 60 40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 6c18 2 34 10 44 26" /><path d="M40 30l8 3 1-9" /></svg></p>
+            <p class="demo-note demo-note--b" aria-hidden="true"><svg viewBox="0 0 60 40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M56 34C38 32 20 24 10 8" /><path d="M8 17l2-9 9 1" /></svg><span class="serif">go on, try it</span></p>
+          </div>
         </div>
       </section>
 
-      <!-- ===================================================== MARQUEE -->
-      <section class="marquee" aria-label="Time zones">
-        <p class="marquee-label">Same room, every time zone</p>
-        <div class="marquee-track" data-marquee>
-          <ul class="marquee-row" data-cities></ul>
+      <!-- ======================================================= STATEMENT -->
+      <section class="statement" aria-label="What Midsentence leaves out">
+        <div class="statement-track" data-marquee>
+          <div class="statement-row">
+            <span>no send button</span><i aria-hidden="true">✳</i>
+            <span class="serif">no “typing…”</span><i aria-hidden="true">✳</i>
+            <span>no rewriting it five times</span><i aria-hidden="true">✳</i>
+            <span class="serif">just talk</span><i aria-hidden="true">✳</i>
+          </div>
         </div>
       </section>
 
-      <!-- ===================================================== FEATURES -->
-      <section class="section features" id="about">
+      <!-- =========================================================== STORY -->
+      <section class="section story" id="how">
         <header class="section-head" data-reveal>
-          <p class="eyebrow"><span class="eyebrow-dot"></span>About Midsentence</p>
-          <h2 class="section-title">Conversation, <span class="serif accent">unfiltered.</span></h2>
-          <p class="section-sub">Most chat apps make you write, rewrite, then send. Midsentence removes the gap between thinking and talking — it feels less like messaging and more like being in the same room.</p>
+          <p class="eyebrow">How it feels</p>
+          <h2 class="section-title">Talking, not <span class="serif">messaging.</span></h2>
+        </header>
+
+        <div class="story-grid">
+          <div class="story-device-wrap">
+            <div class="story-device" data-story-device aria-hidden="true">
+              <div class="device-head">
+                <span class="device-dots"><i></i><i></i><i></i></span>
+                <strong>Late Night Thoughts</strong>
+                <span class="device-people avatar-stack" data-story-avatars></span>
+              </div>
+              <div class="device-lines" data-story-lines></div>
+              <div class="device-stage" data-story-stage></div>
+              <div class="device-empty" data-story-empty>
+                <span class="serif">This room has dissolved.</span>
+                <small>Nothing was kept.</small>
+              </div>
+              <div class="device-composer"><span class="avatar avatar--sm" style="--c: #4cb2ff">J</span><span>Type anything — it’s live</span></div>
+            </div>
+          </div>
+
+          <ol class="story-steps">
+            <li class="story-step is-active" data-step="0">
+              <span class="story-num tnum">01</span>
+              <h3>You start typing.</h3>
+              <p>Everyone in the room watches the sentence take shape — letter by letter, edits and all. No “typing…” bubble, no suspense.</p>
+            </li>
+            <li class="story-step" data-step="1">
+              <span class="story-num tnum">02</span>
+              <h3>Enter moves you on.</h3>
+              <p>There’s nothing to send. Enter tucks the line into the conversation and clears the stage for your next thought.</p>
+            </li>
+            <li class="story-step" data-step="2">
+              <span class="story-num tnum">03</span>
+              <h3>Leave, and it dissolves.</h3>
+              <p>Rooms only live while people are in them. Shortly after the last person leaves, the conversation is gone for good.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ======================================================== FEATURES -->
+      <section class="section features" id="features">
+        <header class="section-head" data-reveal>
+          <p class="eyebrow">Features</p>
+          <h2 class="section-title">Small details, <span class="serif">obsessed over.</span></h2>
         </header>
 
         <div class="bento" data-stagger>
-          <article class="card card--wide" data-spotlight data-reveal>
-            <div class="card-visual visual-typing" aria-hidden="true">
-              <div class="typing-line">
-                <span class="avatar avatar--sm" style="--c: #38bdf8">L</span>
-                <span class="typing-text" data-hot-typing></span><span class="caret" style="--c: #38bdf8"></span>
-              </div>
-              <div class="typing-meta mono"><span class="pulse-dot" style="--dot: #38bdf8"></span> Leo is typing — you see it as it happens</div>
+          <article class="card card--wide" data-spotlight data-reveal data-mode-only="relay">
+            <div class="card-visual visual-cipher" aria-hidden="true">
+              <div class="cipher-row"><small>What the relay sees</small><code data-cipher>9f2c·a71e·04bd·e3c9·5a10·7b66·c2f8</code></div>
+              <div class="cipher-row cipher-row--plain"><small>What your friends see</small><span data-plain>meet you at the rooftop at 8?</span></div>
             </div>
             <div class="card-copy">
-              <h3>Every keystroke, live.</h3>
-              <p>Letters stream to the room the moment you press them. Hesitations, corrections, the half-finished thought — that’s the conversation.</p>
+              <h3>Private rooms are end&#8209;to&#8209;end encrypted.</h3>
+              <p>Link-only rooms are encrypted in your browser with a key that lives in the link. The relay in the middle only ever handles scrambled bytes.</p>
             </div>
           </article>
 
-          <article class="card" data-spotlight data-reveal>
-            <div class="card-visual visual-send" aria-hidden="true">
-              <span class="fake-send">Send</span>
-              <span class="visual-send-or mono">just keep typing</span>
-            </div>
-            <div class="card-copy">
-              <h3>No send button.</h3>
-              <p>There’s nothing to send. <kbd>Enter</kbd> simply tucks your line into the transcript and clears the stage.</p>
-            </div>
-          </article>
-
-          <article class="card" data-spotlight data-reveal>
-            <div class="card-visual visual-link" aria-hidden="true">
-              <button class="link-pill" type="button" tabindex="-1" data-fake-copy>
-                <span class="mono"><span data-host>midsentence</span>/r/<b>quiet-otter-7f3</b></span>
-                <span class="link-pill-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="9" height="9" rx="2" /><path d="M13 7V5.5A1.5 1.5 0 0 0 11.5 4h-6A1.5 1.5 0 0 0 4 5.5v6A1.5 1.5 0 0 0 5.5 13H7" /></svg></span>
-                <span class="link-pill-done">Copied</span>
-              </button>
-            </div>
-            <div class="card-copy">
-              <h3>Rooms in one click.</h3>
-              <p>Name it, share the link, done. No accounts, no invites, no onboarding.</p>
-            </div>
-          </article>
-
-          <article class="card" data-spotlight data-reveal>
-            <div class="card-visual visual-ephemeral" aria-hidden="true">
+          <article class="card card--wide" data-spotlight data-reveal data-mode-only="server">
+            <div class="card-visual visual-dissolve" aria-hidden="true">
               <span style="--n: 0">so that’s the plan then</span>
               <span style="--n: 1">see you all tomorrow</span>
               <span style="--n: 2">goodnight ✨</span>
             </div>
             <div class="card-copy">
-              <h3>Ephemeral by default.</h3>
-              <p>Rooms live in memory and dissolve after the last person leaves. No archives to dig up later.</p>
+              <h3>Nothing is archived.</h3>
+              <p>Rooms live in memory while people are in them and are cleared shortly after the last person leaves.</p>
+            </div>
+          </article>
+
+          <article class="card" data-spotlight data-reveal>
+            <div class="card-visual visual-identity" aria-hidden="true">
+              <div class="id-tag" data-id-tag><span class="avatar avatar--sm" data-id-avatar style="--c: #ff7a59">QO</span><span data-id-name>Quiet Otter</span></div>
+              <div class="id-swatches" data-id-swatches></div>
+            </div>
+            <div class="card-copy">
+              <h3>No accounts. Ever.</h3>
+              <p>Pick a name and a colour, and you’re in. Change either mid-conversation.</p>
             </div>
           </article>
 
           <article class="card" data-spotlight data-reveal>
             <div class="card-visual visual-presence" aria-hidden="true">
-              <div class="presence-row"><span class="avatar avatar--sm" style="--c: #f472b6">M</span><span>Maya</span><span class="presence-state is-typing"><i></i><i></i><i></i></span></div>
-              <div class="presence-row"><span class="avatar avatar--sm" style="--c: #9be15d">K</span><span>Kofi</span><span class="presence-state">here</span></div>
-              <div class="presence-row is-away"><span class="avatar avatar--sm" style="--c: #8b7bff">S</span><span>Sora</span><span class="presence-state">away</span></div>
+              <div class="presence-row"><span class="avatar avatar--sm" style="--c: #ff7eb6">M</span><span>Maya</span><span class="presence-state"><span class="typing-dots" style="--c: #ff7eb6"><i></i><i></i><i></i></span></span></div>
+              <div class="presence-row"><span class="avatar avatar--sm" style="--c: #3dd68c">K</span><span>Kofi</span><span class="presence-state">drafting</span></div>
+              <div class="presence-row is-away"><span class="avatar avatar--sm" style="--c: #9a8cff">S</span><span>Sora</span><span class="presence-state">away</span></div>
             </div>
             <div class="card-copy">
-              <h3>Real presence.</h3>
-              <p>See who’s here, who’s typing, and who stepped away — without anyone announcing it.</p>
+              <h3>Presence you can feel.</h3>
+              <p>See who’s typing, who has a draft hanging, and who stepped away.</p>
             </div>
           </article>
 
-          <article class="card card--strip" data-spotlight data-reveal>
+          <article class="card" data-spotlight data-reveal>
+            <div class="card-visual visual-react" aria-hidden="true">
+              <div class="react-line"><p>shipping it tonight 🚀</p><div class="react-chips" data-react-chips></div></div>
+            </div>
+            <div class="card-copy">
+              <h3>React without interrupting.</h3>
+              <p>Drop a 🔥 on any line while the conversation keeps flowing.</p>
+            </div>
+          </article>
+
+          <article class="card" data-spotlight data-reveal>
+            <div class="card-visual visual-keys" aria-hidden="true">
+              <div class="keys">
+                <span class="keycap keycap--wide" data-key="Enter">Enter</span>
+                <span class="keycap" data-key="Escape">Esc</span>
+                <span class="keycap" data-key="ArrowUp">↑</span>
+                <span class="keycap" data-key="/">/</span>
+              </div>
+              <small class="keys-hint">go ahead — press one</small>
+            </div>
             <div class="card-copy">
               <h3>Keyboard-first.</h3>
-              <p>Your hands never leave the keys. Try them — the caps below are listening.</p>
+              <p>Enter commits, Esc clears, ↑ brings back your last line. Just start typing anywhere.</p>
             </div>
-            <div class="keys" aria-hidden="true">
-              <div class="key-group"><span class="keycap keycap--wide" data-key="Enter">Enter ↵</span><small>commit line</small></div>
-              <div class="key-group"><span class="keycap" data-key="Escape">Esc</span><small>clear draft</small></div>
-              <div class="key-group"><span class="keycap" data-key="/">/</span><small>focus input</small></div>
-              <div class="key-group"><span class="keycap" data-key="c">C</span><small>new room</small></div>
+          </article>
+
+          <article class="card card--wide" data-spotlight data-reveal>
+            <div class="card-visual visual-sync" aria-hidden="true">
+              <div class="sync-laptop"><div class="sync-screen"><span class="sync-who" style="--c: #ffbe3d">Ana</span><span class="sync-text" data-sync="a"></span><span class="caret" style="--c: #ffbe3d"></span></div></div>
+              <div class="sync-wire"><span></span></div>
+              <div class="sync-phone"><div class="sync-screen"><span class="sync-who" style="--c: #ffbe3d">Ana</span><span class="sync-text" data-sync="b"></span><span class="caret" style="--c: #ffbe3d"></span></div></div>
+            </div>
+            <div class="card-copy">
+              <h3>Live on every screen.</h3>
+              <p>Laptop, phone, tablet — the same letter lands everywhere at once. Share a link and anyone can hop in from anything with a browser.</p>
             </div>
           </article>
         </div>
       </section>
 
-      <!-- ===================================================== HOW -->
-      <section class="section how" id="how">
-        <header class="section-head" data-reveal>
-          <p class="eyebrow"><span class="eyebrow-dot"></span>How it works</p>
-          <h2 class="section-title">Three steps. <span class="serif accent">Zero</span> friction.</h2>
-          <p class="section-sub">From idea to conversation in about ten seconds.</p>
-        </header>
-
-        <div class="steps-wrap" data-steps>
-        <div class="step-progress" aria-hidden="true"><span data-step-fill></span></div>
-        <ol class="steps">
-          <li class="step" data-reveal>
-            <span class="step-num mono">01</span>
-            <div class="step-visual" aria-hidden="true">
-              <div class="mini-field"><span class="mini-label">Room name</span><span class="mini-input"><span class="mini-typed">Book club</span><span class="caret"></span></span></div>
-              <div class="mini-toggle"><span>Public</span><span class="switch" aria-checked="true"><span class="switch-thumb"></span></span></div>
-            </div>
-            <h3>Create a room</h3>
-            <p>Give it a name and a topic. Public rooms show up on the homepage; private ones are link-only.</p>
-          </li>
-          <li class="step" data-reveal>
-            <span class="step-num mono">02</span>
-            <div class="step-visual" aria-hidden="true">
-              <div class="mini-share">
-                <span class="mono">/r/book-club-4a2</span>
-                <span class="mini-copy">Copy</span>
-                <span class="mini-cursor"><svg viewBox="0 0 16 16"><path d="M2 1l11 6.5-4.6 1.2L6.2 13z" fill="#fff" stroke="#000" stroke-width="1" /></svg></span>
-              </div>
-            </div>
-            <h3>Share the link</h3>
-            <p>Send it anywhere. Whoever opens it picks a name and a color, and they’re in.</p>
-          </li>
-          <li class="step" data-reveal>
-            <span class="step-num mono">03</span>
-            <div class="step-visual" aria-hidden="true">
-              <div class="mini-stage">
-                <span class="avatar avatar--sm" style="--c: #34d399">R</span>
-                <span class="mini-stream"><span>s</span><span>o</span><span> </span><span>w</span><span>h</span><span>o</span><span> </span><span>f</span><span>i</span><span>n</span><span>i</span><span>s</span><span>h</span><span>e</span><span>d</span><span>?</span></span>
-              </div>
-            </div>
-            <h3>Just start typing</h3>
-            <p>Your letters appear for everyone as you type them. Press <kbd>Enter</kbd> to move on to the next thought.</p>
-          </li>
-        </ol>
-        </div>
-      </section>
-
-      <!-- ===================================================== ROOMS -->
+      <!-- =========================================================== ROOMS -->
       <section class="section rooms" id="rooms">
         <header class="section-head section-head--row" data-reveal>
           <div>
-            <p class="eyebrow"><span class="eyebrow-dot"></span>Rooms</p>
-            <h2 class="section-title">Drop into a <span class="serif accent">room.</span></h2>
-            <p class="section-sub" data-rooms-sub>Public rooms, open right now. Say hi — they can see you typing.</p>
+            <p class="eyebrow">Rooms</p>
+            <h2 class="section-title">Open <span class="serif">right now.</span></h2>
           </div>
           <div class="rooms-tools">
             <label class="search">
-              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="5.5" /><path d="M13.5 13.5L17 17" /></svg>
+              <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="9" r="5.5" /><path d="M13.5 13.5L17 17" /></svg>
               <span class="sr-only">Search rooms</span>
               <input type="search" placeholder="Find a room" autocomplete="off" data-room-search />
-              <kbd data-search-kbd>/</kbd>
+              <kbd>/</kbd>
             </label>
           </div>
         </header>
 
         <div class="room-grid" data-room-grid aria-live="polite" aria-busy="true">
-          <div class="room-card skeleton" style="height: 196px"></div>
-          <div class="room-card skeleton" style="height: 196px"></div>
-          <div class="room-card skeleton" style="height: 196px"></div>
+          <div class="room-card skeleton"></div>
+          <div class="room-card skeleton"></div>
+          <div class="room-card skeleton"></div>
         </div>
       </section>
 
-      <!-- ===================================================== FAQ -->
+      <!-- ============================================================= FAQ -->
       <section class="section faq" id="faq">
-        <header class="section-head" data-reveal>
-          <p class="eyebrow"><span class="eyebrow-dot"></span>FAQ</p>
-          <h2 class="section-title">Good <span class="serif accent">questions.</span></h2>
-        </header>
+        <div class="faq-grid">
+          <header class="faq-head" data-reveal>
+            <p class="eyebrow">FAQ</p>
+            <h2 class="section-title">Questions, <span class="serif">answered.</span></h2>
+            <p class="faq-sub">Something else on your mind? Open a room and ask — we’ll see you typing.</p>
+          </header>
 
-        <div class="faq-list" data-faq data-reveal>
-          <div class="faq-item">
-            <h3><button aria-expanded="false" aria-controls="faq-1" id="faq-1-btn">Can people really see every letter?<span class="faq-icon" aria-hidden="true"></span></button></h3>
-            <div class="faq-panel" id="faq-1" role="region" aria-labelledby="faq-1-btn"><div><p>Yes — that’s the whole idea. Everyone in the room sees your line as you type it, typos and backspaces included. Pressing <kbd>Enter</kbd> moves it into the transcript. <kbd>Esc</kbd> clears what you’ve typed, though people may already have seen it.</p></div></div>
-          </div>
-          <div class="faq-item">
-            <h3><button aria-expanded="false" aria-controls="faq-2" id="faq-2-btn">Do I need an account?<span class="faq-icon" aria-hidden="true"></span></button></h3>
-            <div class="faq-panel" id="faq-2" role="region" aria-labelledby="faq-2-btn"><div><p>No. Pick a display name and a color when you join a room. Midsentence remembers them in your browser for next time — nothing else.</p></div></div>
-          </div>
-          <div class="faq-item">
-            <h3><button aria-expanded="false" aria-controls="faq-3" id="faq-3-btn">Are conversations stored?<span class="faq-icon" aria-hidden="true"></span></button></h3>
-            <div class="faq-panel" id="faq-3" role="region" aria-labelledby="faq-3-btn"><div><p>Only in the server’s memory while the room is in use, so people who join late can catch up on the last few hundred lines. A room is cleared about ten minutes after the last person leaves, and nothing is ever written to disk.</p></div></div>
-          </div>
-          <div class="faq-item">
-            <h3><button aria-expanded="false" aria-controls="faq-4" id="faq-4-btn">Can I make a private room?<span class="faq-icon" aria-hidden="true"></span></button></h3>
-            <div class="faq-panel" id="faq-4" role="region" aria-labelledby="faq-4-btn"><div><p>Turn off “List on the homepage” when you create it. Private rooms don’t appear anywhere — only people with the link can get in.</p></div></div>
-          </div>
-          <div class="faq-item">
-            <h3><button aria-expanded="false" aria-controls="faq-5" id="faq-5-btn">What happens if my connection drops?<span class="faq-icon" aria-hidden="true"></span></button></h3>
-            <div class="faq-panel" id="faq-5" role="region" aria-labelledby="faq-5-btn"><div><p>Midsentence reconnects on its own and keeps your seat. Anything you commit while offline is sent as soon as you’re back.</p></div></div>
+          <div class="faq-list" data-faq data-reveal>
+            <div class="faq-item">
+              <h3><button type="button" aria-expanded="false" aria-controls="faq-1" id="faq-1-btn">Can people really see every letter?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+              <div class="faq-panel" id="faq-1" role="region" aria-labelledby="faq-1-btn"><div><p>Yes — that’s the whole point. Everyone in the room sees your line as you type it, typos and backspaces included. Enter moves it into the conversation; Esc clears it, though people may have already seen it.</p></div></div>
+            </div>
+            <div class="faq-item">
+              <h3><button type="button" aria-expanded="false" aria-controls="faq-2" id="faq-2-btn">Do I need an account?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+              <div class="faq-panel" id="faq-2" role="region" aria-labelledby="faq-2-btn"><div><p>No. Pick a display name and a colour when you join. Midsentence remembers them in your browser for next time — nothing else.</p></div></div>
+            </div>
+            <div class="faq-item" data-mode-only="relay">
+              <h3><button type="button" aria-expanded="false" aria-controls="faq-3" id="faq-3-btn">Who can read my messages?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+              <div class="faq-panel" id="faq-3" role="region" aria-labelledby="faq-3-btn"><div><p>Link-only rooms are end-to-end encrypted: your browser encrypts every keystroke with a key derived from the room link before it leaves your device, so only people with the link can read it. Public rooms are listed on this page, so anyone can join and read them — keep secrets in link-only rooms.</p></div></div>
+            </div>
+            <div class="faq-item">
+              <h3><button type="button" aria-expanded="false" aria-controls="faq-4" id="faq-4-btn">Are conversations stored?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+              <div class="faq-panel" id="faq-4" role="region" aria-labelledby="faq-4-btn"><div><p>Only the recent part of a conversation is kept while a room is in use, so people who join late can catch up. Shortly after the last person leaves, the room’s history is cleared.</p></div></div>
+            </div>
+            <div class="faq-item">
+              <h3><button type="button" aria-expanded="false" aria-controls="faq-5" id="faq-5-btn">What if my connection drops?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+              <div class="faq-panel" id="faq-5" role="region" aria-labelledby="faq-5-btn"><div><p>Midsentence reconnects on its own and keeps your seat. Anything you commit while offline is sent as soon as you’re back.</p></div></div>
+            </div>
+            <div class="faq-item">
+              <h3><button type="button" aria-expanded="false" aria-controls="faq-6" id="faq-6-btn">Is it free?<span class="faq-icon" aria-hidden="true"></span></button></h3>
+              <div class="faq-panel" id="faq-6" role="region" aria-labelledby="faq-6-btn"><div><p>Yes. No accounts, no ads, no limits beyond 50 people per room.</p></div></div>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- ===================================================== CTA -->
-      <section class="section cta">
-        <div class="cta-card" data-spotlight data-reveal>
-          <div class="cta-glow" aria-hidden="true"></div>
-          <h2 class="cta-title">The conversation is <span class="serif accent">already</span> happening.</h2>
-          <p class="cta-sub">Start a room in seconds, or wander into one that’s already going.</p>
-          <div class="cta-actions">
-            <button class="btn btn-primary btn-lg" data-create-room data-magnetic>
-              <span class="btn-label">Create a room</span>
-              <span class="btn-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h11M11 5l5 5-5 5" /></svg></span>
+      <!-- ===================================================== FINAL CTA -->
+      <section class="section start" id="start">
+        <div class="start-card" data-reveal>
+          <h2 class="start-title">Say <span class="serif">something.</span></h2>
+          <p class="start-sub">Name a room and you’re in it. Share the link and they’re in it too.</p>
+          <form class="start-form" data-start-form novalidate>
+            <label class="sr-only" for="start-name">Room name</label>
+            <div class="start-input">
+              <input id="start-name" name="name" maxlength="48" autocomplete="off" spellcheck="false" placeholder="Name your room…" data-start-input />
+              <span class="start-mirror" aria-hidden="true" data-start-mirror></span>
+            </div>
+            <button class="btn btn-primary btn-lg" type="submit" data-start-submit>
+              <span class="btn-label">Create room</span>
+              <span class="btn-dot" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4" /></svg></span>
+              <span class="btn-spinner" aria-hidden="true"></span>
             </button>
-            <a class="btn btn-ghost btn-lg" href="room.html?r=lobby" data-magnetic="0.12"><span class="btn-label">Join the Lobby</span></a>
+          </form>
+          <div class="start-options">
+            <button class="switch" type="button" role="switch" aria-checked="false" aria-labelledby="start-private-label" data-start-private><span class="switch-thumb"></span></button>
+            <span id="start-private-label">Link-only <span class="start-option-note" data-mode-only="relay">· end-to-end encrypted</span></span>
           </div>
         </div>
       </section>
     </main>
 
-    <!-- ===================================================== FOOTER -->
+    <!-- ========================================================== FOOTER -->
     <footer class="footer">
       <div class="footer-inner">
         <div class="footer-brand">
-          <a class="brand" href="#top"><img class="brand-mark" src="assets/logo.png" alt="" width="26" height="26" /><span class="brand-name">Midsentence</span></a>
-          <p>Chat in real time, letter by letter.</p>
-          <p class="footer-status mono"><span class="pulse-dot" data-status-dot></span><span data-status-text>Checking connection…</span></p>
+          <a class="logo" href="#top"><svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true"><rect class="tile" width="64" height="64" rx="18" /><rect class="bar" x="13" y="29" width="22" height="6" rx="3" /><rect class="caret" x="40" y="15" width="7" height="34" rx="3.5" /></svg><span>midsentence</span></a>
+          <p>Say it as you think it.</p>
+          <p class="footer-status"><span class="dot-live" data-status-dot></span><span data-status-text>Connecting…</span></p>
         </div>
         <nav class="footer-cols" aria-label="Footer">
           <div>
             <p class="footer-head">Product</p>
-            <a href="#about">About</a>
             <a href="#how">How it works</a>
+            <a href="#features">Features</a>
             <a href="#rooms">Rooms</a>
             <a href="#faq">FAQ</a>
           </div>
           <div>
-            <p class="footer-head">Popular rooms</p>
+            <p class="footer-head">Rooms</p>
             <a href="room.html?r=lobby">The Lobby</a>
             <a href="room.html?r=late-night">Late Night Thoughts</a>
             <a href="room.html?r=design-crit">Design Crit</a>
@@ -393,7 +403,7 @@
           </div>
         </nav>
       </div>
-      <div class="footer-word" aria-hidden="true">midsentence</div>
+      <div class="footer-word" aria-hidden="true" data-footer-word>midsentence</div>
       <div class="footer-base">
         <span>© <span data-year>2026</span> Midsentence</span>
         <span>Made for people who think out loud.</span>

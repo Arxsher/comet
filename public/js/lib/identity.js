@@ -1,14 +1,14 @@
 import { session, store } from './util.js';
 
 export const COLORS = [
-  { name: 'Scarlet', value: '#ff3932' },
-  { name: 'Ember', value: '#ff8a3d' },
-  { name: 'Sun', value: '#f5c542' },
-  { name: 'Lime', value: '#9be15d' },
-  { name: 'Mint', value: '#34d399' },
-  { name: 'Sky', value: '#38bdf8' },
-  { name: 'Iris', value: '#8b7bff' },
-  { name: 'Rose', value: '#f472b6' },
+  { name: 'Coral', value: '#ff7a59' },
+  { name: 'Amber', value: '#ffbe3d' },
+  { name: 'Volt', value: '#c6f432' },
+  { name: 'Mint', value: '#3dd68c' },
+  { name: 'Lagoon', value: '#2ec4c6' },
+  { name: 'Sky', value: '#4cb2ff' },
+  { name: 'Iris', value: '#9a8cff' },
+  { name: 'Blush', value: '#ff7eb6' },
 ];
 
 const ADJECTIVES = ['Quiet', 'Amber', 'Lunar', 'Swift', 'Velvet', 'Cosmic', 'Brave', 'Misty', 'Golden', 'Gentle', 'Wild', 'Neon', 'Silver', 'Sunny', 'Sleepy', 'Clever'];

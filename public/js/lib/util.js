@@ -42,7 +42,7 @@ export function initials(name = '') {
 
 export function avatar(member, size = '') {
   const el = h(`span.avatar${size ? '.avatar--' + size : ''}`, { title: member.name, 'aria-hidden': 'true' }, initials(member.name));
-  el.style.setProperty('--c', member.color || '#ff3932');
+  el.style.setProperty('--c', member.color || '#ff7a59');
   return el;
 }
 
